@@ -13,6 +13,8 @@
 #include <StandardTagAndInitialize.h>
 
 // Headers for application-specific algorithm/data structure objects
+#include <ibamr/AdvDiffPredictorCorrectorHierarchyIntegrator.h>
+#include <ibamr/AdvDiffSemiImplicitHierarchyIntegrator.h>
 #include <ibamr/ConstraintIBMethod.h>
 #include <ibamr/IBExplicitHierarchyIntegrator.h>
 #include <ibamr/IBStandardForceGen.h>
@@ -88,20 +90,55 @@ main(
 
         const bool dump_timer_data = app_initializer->dumpTimerData();
         const int timer_dump_interval = app_initializer->getTimerDumpInterval();
+        
+        Pointer<Database> main_db = app_initializer->getComponentDatabase("Main");
 
         // Create major algorithm and data objects that comprise the
         // application.  These objects are configured from the input database
         // and, if this is a restarted run, from the restart database.
         const int num_structures = input_db->getIntegerWithDefault("num_structures", 1);
-	Pointer<ConstraintIBMethod> ib_method_ops = new ConstraintIBMethod("ConstraintIBMethod", app_initializer->getComponentDatabase("ConstraintIBMethod"), num_structures);
+		Pointer<ConstraintIBMethod> ib_method_ops = new ConstraintIBMethod("ConstraintIBMethod", app_initializer->getComponentDatabase("ConstraintIBMethod"), num_structures);
         Pointer<INSHierarchyIntegrator> navier_stokes_integrator = new INSStaggeredHierarchyIntegrator("INSStaggeredHierarchyIntegrator", app_initializer->getComponentDatabase("INSStaggeredHierarchyIntegrator"));
         Pointer<IBHierarchyIntegrator> time_integrator = new IBExplicitHierarchyIntegrator("IBHierarchyIntegrator", app_initializer->getComponentDatabase("IBHierarchyIntegrator"), ib_method_ops, navier_stokes_integrator);
+        Pointer<AdvDiffHierarchyIntegrator> adv_diff_integrator;
+        const string adv_diff_solver_type = main_db->getStringWithDefault("adv_diff_solver_type", "PREDICTOR_CORRECTOR");
+    	if (adv_diff_solver_type == "PREDICTOR_CORRECTOR")
+	      {
+		Pointer<AdvectorExplicitPredictorPatchOps> predictor = new AdvectorExplicitPredictorPatchOps("AdvectorExplicitPredictorPatchOps", app_initializer->getComponentDatabase("AdvectorExplicitPredictorPatchOps"));
+		adv_diff_integrator = new AdvDiffPredictorCorrectorHierarchyIntegrator("AdvDiffPredictorCorrectorHierarchyIntegrator", app_initializer->getComponentDatabase("AdvDiffPredictorCorrectorHierarchyIntegrator"), predictor);
+    	  }
+	    else if (adv_diff_solver_type == "SEMI_IMPLICIT")
+    	  {
+		adv_diff_integrator = new AdvDiffSemiImplicitHierarchyIntegrator("AdvDiffSemiImplicitHierarchyIntegrator", app_initializer->getComponentDatabase("AdvDiffSemiImplicitHierarchyIntegrator"));
+    	  }
+	    else
+    	  {
+		TBOX_ERROR("Unsupported solver type: " << adv_diff_solver_type << "\n" <<
+			   "Valid options are: PREDICTOR_CORRECTOR, SEMI_IMPLICIT");
+      	}
+	    navier_stokes_integrator->registerAdvDiffHierarchyIntegrator(adv_diff_integrator);
         Pointer<CartesianGridGeometry<NDIM> > grid_geometry = new CartesianGridGeometry<NDIM>("CartesianGeometry", app_initializer->getComponentDatabase("CartesianGeometry"));
         Pointer<PatchHierarchy<NDIM> > patch_hierarchy = new PatchHierarchy<NDIM>("PatchHierarchy", grid_geometry);
         Pointer<StandardTagAndInitialize<NDIM> > error_detector = new StandardTagAndInitialize<NDIM>("StandardTagAndInitialize", time_integrator, app_initializer->getComponentDatabase("StandardTagAndInitialize"));
         Pointer<BergerRigoutsos<NDIM> > box_generator = new BergerRigoutsos<NDIM>();
         Pointer<LoadBalancer<NDIM> > load_balancer = new LoadBalancer<NDIM>("LoadBalancer", app_initializer->getComponentDatabase("LoadBalancer"));
         Pointer<GriddingAlgorithm<NDIM> > gridding_algorithm = new GriddingAlgorithm<NDIM>("GriddingAlgorithm", app_initializer->getComponentDatabase("GriddingAlgorithm"), error_detector, box_generator, load_balancer);
+
+	    const bool periodic_domain = grid_geometry->getPeriodicShift().min() > 0;
+	    
+		// Setup the advected and diffused quantity.
+	    Pointer<CellVariable<NDIM,double> > T_var = new CellVariable<NDIM,double>("T");
+    	adv_diff_integrator->registerTransportedQuantity(T_var);
+	    adv_diff_integrator->setDiffusionCoefficient(T_var, input_db->getDouble("KAPPA"));
+    	adv_diff_integrator->setInitialConditions(T_var, new muParserCartGridFunction("T_init", app_initializer->getComponentDatabase("TemperatureInitialConditions"), grid_geometry));
+	    RobinBcCoefStrategy<NDIM>* T_bc_coef = NULL;
+	    if (!periodic_domain)
+    	  {
+		T_bc_coef = new muParserRobinBcCoefs("T_bc_coef", app_initializer->getComponentDatabase("TemperatureBcCoefs"), grid_geometry);
+		adv_diff_integrator->setPhysicalBcCoef(T_var, T_bc_coef);
+	      }
+    	adv_diff_integrator->setAdvectionVelocity(T_var, navier_stokes_integrator->getAdvectionVelocityVariable());
+	
 
         // Configure the IB solver.
         Pointer<IBStandardInitializer> ib_initializer = new IBStandardInitializer("IBStandardInitializer", app_initializer->getComponentDatabase("IBStandardInitializer"));
@@ -121,7 +158,7 @@ main(
         }
 
         // Create Eulerian boundary condition specification objects (when necessary).
-        const bool periodic_domain = grid_geometry->getPeriodicShift().min() > 0;
+        //const bool periodic_domain = grid_geometry->getPeriodicShift().min() > 0;
         std::vector<RobinBcCoefStrategy<NDIM>*> u_bc_coefs(NDIM,static_cast<RobinBcCoefStrategy<NDIM>*>(NULL));
         if (!periodic_domain)
         {
@@ -255,6 +292,7 @@ main(
         // Cleanup Eulerian boundary condition specification objects (when
         // necessary).
         for (unsigned int d = 0; d < NDIM; ++d) delete u_bc_coefs[d];
+            delete T_bc_coef;
 
     }// cleanup dynamically allocated objects prior to shutdown
 

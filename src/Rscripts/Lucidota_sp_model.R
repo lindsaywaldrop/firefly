@@ -122,17 +122,17 @@ for(j in 1:total.hairs){
 for (j in 1:overlap){
   fly.above <- rnorm(num.mech.hairs, mean = ((1/overlap)*1.5*j*mech.hair.length*sin(mech.hair.angle)+base.width),
                      sd = 0.05*((1/overlap)*j*mech.hair.length*sin(mech.hair.angle)+base.width))
-  fly.around <- runif(1, -0.5*L, -0.5*L+100e-6)
+  fly.across <- runif(1, -0.5*L, -0.5*L+100e-6)
   for(i in 2:num.mech.hairs){
-    fly.around <- c(fly.around, fly.around[i-1]+rnorm(1, 2.5*mean.dist.all, sd.dist.all))
+    fly.across <- c(fly.across, fly.across[i-1]+rnorm(1, 2.5*mean.dist.all, sd.dist.all))
   }
   widths <- ifelse(j==1, width.mech.hair.med, width.mech.hair.dis)
   for (k in 1:num.mech.hairs){
-    center.point <- c(fly.around[k], fly.above[k])
+    center.point <- c(fly.across[k], fly.above[k])
     fly.peg <- make.flying.peg(dx, center.point, widths)
     pegs <- rbind(pegs,fly.peg)
   }
-  rm(fly.around, fly.above)
+  rm(fly.across, fly.above)
 }
 
 # Plot pegs

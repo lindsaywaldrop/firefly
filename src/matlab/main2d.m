@@ -59,7 +59,9 @@ assert( exist( 'IBM_Driver.m', 'file' ) == 2, 'IBM_Driver.m not found -> Please 
 %
 [Fluid_Params, Grid_Params, Time_Params, Lag_Struct_Params, Output_Params, Lag_Name_Params,Con_Params] = please_Initialize_Simulation();
 
-
+t_step = 0;
+save_interval = Output_Params(1);
+save('peg_indices.mat','t_step','save_interval','-append')
 %
 %-%-%-% DO THE IMMERSED BOUNDARY SOLVE!!!!!!!! %-%-%-%
 %
