@@ -51,10 +51,10 @@ make.peg <- function(dx, center.point, height, width){
   nap <- matrix(c(THETA, RHO), nrow = length(THETA), ncol = 2)
   pts <- pracma::pol2cart(nap)
   pts <- as.data.frame(pts)
-  pts$y <- pts$y + height + dx + center.point[2]
+  pts$y <- pts$y + (height-width) + (dx/2) + center.point[2]
   pts$x <- pts$x + center.point[1]
   pts2<- data.frame("x" = c(center.point[1]-0.5*width, 0.5*width+center.point[1]), 
-                    "y" = c(center.point[2]+dx, center.point[2]+dx))
+                    "y" = c(center.point[2]+(dx/2), center.point[2]+dx))
   pts.all <- rbind(pts,pts2)
   
   In <- inpolygon(whole_grid$X, whole_grid$Y, pts.all$x, pts.all$y, boundary = FALSE)

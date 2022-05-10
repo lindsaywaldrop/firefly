@@ -11,9 +11,9 @@ MU=1.5e-5 //
 //
 // grid spacing parameters
 
-MAX_LEVELS = 4                            // maximum number of levels in locally refined grid
-REF_RATIO  = 4                            // refinement ratio between levels
-N = 16                                     // actual    number of grid cells on coarsest grid level
+MAX_LEVELS = 1                            // maximum number of levels in locally refined grid
+REF_RATIO  = 1                            // refinement ratio between levels
+N = 1024                                     // actual    number of grid cells on coarsest grid level
 NFINEST = (REF_RATIO^(MAX_LEVELS - 1))*N  // effective number of grid cells on finest   grid level
 DX = (1.0*L)/NFINEST                      // Cartesian mesh width (m)
 //

@@ -38,8 +38,8 @@ base_width = 10e-6;
 
 %%%% create the initial concentration %%%%
 
-xc = 0.9;
-[Concentration]= give_Me_Initial_Concentration(Nx,Ny,Lx,Ly,xc);
+xc = 0.8;
+[Concentration]= give_Me_Initial_Concentration(Nx,Ny,xc);
 figure(1)
 pcolor(x, y, Concentration), shading flat
 
@@ -66,11 +66,12 @@ end
 
 
 % Make base plate
-x_grid = 0:dx:Lx;
-y_grid = 0:dx:base_width;
-[pegs_x, pegs_y] = meshgrid(x_grid, y_grid);
-pegs(:,1) = reshape(pegs_x,1,[]);
-pegs(:,2) = reshape(pegs_y,1,[]);
+x_base = 0:dx/3:Lx;
+y_base = ones(length(x_base),1)*base_width;
+%[pegs_x, pegs_y] = meshgrid(x_grid, y_grid);
+pegs = zeros(length(x_base),2);
+pegs(:,1) = x_base;
+pegs(:,2) = y_base;
 corners_x = [0 Lx Lx 0];
 corners_y = [0,0,base_width,base_width];
 [In_base] = inpolygon(xx,yy,corners_x,corners_y);
@@ -86,15 +87,15 @@ width_peg(hairs==0) = width_mech_hair_prox;
 for i=1:2
     for j=1:total_hairs
         if i==1 && hairs(j)==1
-            [peg_in, x_peg,y_peg] = make_peg(dx, xx, yy, [positions(j),...
+            [peg_in, x_peg, y_peg] = make_peg(dx, dy, xx, yy, [positions(j),...
                 base_width], length_peg(j), width_peg(j)); 
-            pegs = [pegs; [x_peg, y_peg]];
+            pegs = [pegs; [x_peg; y_peg]'];
             Concentration(peg_in) = 0;
             clear x_peg y_peg peg_in
         elseif i==2 && hairs(j)==0
-            [peg_in, x_peg,y_peg] = make_peg(dx, xx, yy, [positions(j),...
+            [peg_in, x_peg,y_peg] = make_peg(dx, dy, xx, yy, [positions(j),...
                 base_width], length_peg(j), width_peg(j)); 
-            pegs = [pegs; [x_peg, y_peg]];
+            pegs = [pegs; [x_peg; y_peg]'];
             Concentration(peg_in) = 0;
             clear x_peg y_peg peg_in
         else
@@ -122,7 +123,7 @@ for j=1:overlap
   for k=1:num_mech_hairs
       center_point = [fly_across(k) fly_above(k)];
       [peg_in, x_peg, y_peg] = make_flying_peg(dx, xx, yy, center_point, widths);
-      pegs = [pegs; [x_peg, y_peg]];
+      pegs = [pegs; [x_peg; y_peg]'];
       Concentration(peg_in) = 0;
       clear x_peg y_peg peg_in
   end
@@ -151,43 +152,60 @@ clear all
 
 %%%% Other Functions %%%%
 
-function [In, Xin, Yin] = make_peg(dx, xx, yy, center_point, height, width)
+function [In, Xin, Yin] = make_peg(dx, dy, xx, yy, center_point, height, width)
 
-  %x_grid = (center_point(1)-0.5*width-1e-6):dx:(center_point(1)+0.5*width+1e-6);
-  %y_grid = (center_point(2)-1e-6):dx:(center_point(2)+height+0.5*width+1e-6);
+  %x_grid = (center_point(1)-0.5*width-1e-6):dx/3:(center_point(1)+0.5*width+1e-6);
+  %y_grid = (center_point(2)-1e-6):dx/3:(center_point(2)+height+0.5*width+1e-6);
   %[whole_grid_x,whole_grid_y] = meshgrid(x_grid, y_grid);
-   whole_grid_x = xx;
-   whole_grid_y = yy;
   
-  THETA = linspace(0, pi, 25);
+  spacing = ceil((width*pi/2)/(dx/3));
+  THETA = linspace(0, pi, spacing);
   pts_x = 0.5*width*cos(THETA);
   pts_y = 0.5*width*sin(THETA);
-  pts_y = pts_y + height + dx + center_point(2);
+  pts_y = pts_y + height-0.5*width + center_point(2);
   pts_x = pts_x + center_point(1);
-  pts_x = [pts_x, center_point(1)-0.5*width, 0.5*width+center_point(1)]; 
-  pts_y = [pts_y, center_point(2)+dx, center_point(2)+dx];
-  
-  In = inpolygon(whole_grid_x, whole_grid_y, pts_x, pts_y);
-  Xin = whole_grid_x(In);
-  Yin = whole_grid_y(In);
+  y1 = pts_y(end)-(dy/3);
+  y2 = center_point(2);
+  n = ceil((abs(y2-y1)/(dy/3))+1);
+  side_bar_y = linspace(y1,y2,n);
+  side_bar_x = ones(1,length(side_bar_y))*pts_x(end);
+  pts_y = [pts_y, side_bar_y];
+  pts_x = [pts_x, side_bar_x];
+  x1 = pts_x(end)+(dx/3);
+  x2 = center_point(1)+0.5*width;
+  n = ceil((abs(x2-x1)/(dx/3))+1);
+  bottom_edge_x  = linspace(x1,x2,n);
+  bottom_edge_y = ones(1,length(bottom_edge_x))*pts_y(end);
+  pts_x = [pts_x, bottom_edge_x];
+  pts_y = [pts_y, bottom_edge_y];
+  %Xin = [pts_x, center_point(1)-0.5*width, 0.5*width+center_point(1)]; 
+  %Yin = [pts_y, center_point(2)+dx, center_point(2)+dx];
+  side_bar_x = ones(1,length(side_bar_y))*pts_x(1);
+  Xin = [pts_x, side_bar_x, side_bar_x(1)];
+  Yin = [pts_y, flip(side_bar_y), y1+(dx/3)];
+  %make_pts = inpolygon(whole_grid_x, whole_grid_y, pts_x, pts_y);
+  %Xin = whole_grid_x(make_pts);
+  %Yin = whole_grid_y(make_pts);
+  In = inpolygon(xx, yy, pts_x, pts_y);
 
 end
 
 function [In, Xin, Yin] = make_flying_peg(dx, xx, yy, center_point, width)
   height = width*1.15;
-  %x_grid = (center_point(1)-0.5*width-2e-6):dx:(center_point(1)+0.5*width+2e-6);
-  %y_grid = (center_point(2)-0.5*height-2e-6):dx:(center_point(2)+0.5*height+2e-6);
-  %[whole_grid_x,whole_grid_y] = meshgrid(x_grid, y_grid);
-  whole_grid_x = xx;
-  whole_grid_y = yy;
+  x_grid = (center_point(1)-0.5*width-2e-6):dx/3:(center_point(1)+0.5*width+2e-6);
+  y_grid = (center_point(2)-0.5*height-2e-6):dx/3:(center_point(2)+0.5*height+2e-6);
+  [whole_grid_x,whole_grid_y] = meshgrid(x_grid, y_grid);
   
   THETA = linspace(0, 2*pi, 50);
   pts_x = width*cos(THETA) + center_point(1);
   pts_y = height*sin(THETA) + center_point(2);
   
-  In = inpolygon(whole_grid_x, whole_grid_y, pts_x, pts_y);
-  Xin = whole_grid_x(In);
-  Yin = whole_grid_y(In);
+  make_pts = inpolygon(whole_grid_x, whole_grid_y, pts_x, pts_y);
+  %Xin = whole_grid_x(make_pts);
+  %Yin = whole_grid_y(make_pts);
+  Xin = pts_x;
+  Yin = pts_y;
+  In = inpolygon(xx, yy, pts_x, pts_y);
    
 end
 
@@ -252,12 +270,12 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [C] = give_Me_Initial_Concentration(Nx,Ny,Lx,Ly,xc)
+function [C] = give_Me_Initial_Concentration(Nx,Ny,xc)
 
 x = linspace(0,1,Nx);
 y = linspace(0,1,Ny);
 [xx,yy]=meshgrid(x,y);
 %xc = 0.3; 
-C = exp(-7*(2*(xx - xc)./0.4).^2);
+C = exp(-7*(2*(yy - xc)./0.4).^2);
 
 end
