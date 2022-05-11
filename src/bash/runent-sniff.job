@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH -t 30:00:00
+#SBATCH -p RM
+#SBATCH -N 1
+#SBATCH --ntasks-per-node 8
+#SBATCH --mail-type ALL
+#SBATCH -C EGRESS
+
+# echo commands to stdout
+set -x 
+
+# Number of hairs in the array
+array=3
+
+# Fluid
+fluid=\'air\'
+
+# First number
+a=1
+
+# Second number
+b=1
+
+# Set path 
+WD=/pylon5/bi561lp/lwaldrop/entcode
+MatWD=\'$WD\'
+
+# move to working directory
+cd "${WD}"/src/matlab
+
+# add appropriate modules
+module load matlab
+
+# run matlab program
+matlab -r "entsniff(${MatWD},$array,${fluid},$a:$b,8);exit"
+
+wait

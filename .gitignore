@@ -2,3 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+
+*~
+*.vtk
+*.samrai
+*.silo
+*.DS_Store
