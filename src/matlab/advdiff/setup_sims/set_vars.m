@@ -35,17 +35,23 @@ simulation.run_id = parameters.run_id;
 
 run odorcapture_params.m
 
+% disp('setup_hairs')
+[parameters] = setup_hairs_for_velocity(paths, parameters);
+
+disp('read_in_velocities')
+[parameters, simulation] = read_in_velocity_data_p1(paths, parameters, simulation);
+
 %cd(strcat(pathbase_data,'hairinfo-files/',num2str(hairNum),'hair_files/'))
 %set x_length and y_length here if based on experimental data otherwise in
 %params file manually
-if strcmp(parameters.explicit_vel,'piv_data')
-   if (parameters.handle_hairs)
-       disp('setup_hairs')
-       [parameters, simulation] = setup_hairs_for_velocity(paths, parameters);
-   end
-   disp('read_in_velocities')
-   [parameters, simulation] = read_in_velocity_data_p1(paths, parameters, simulation);
-end
+% if strcmp(parameters.explicit_vel,'piv_data')
+%    if (parameters.handle_hairs)
+%        disp('setup_hairs')
+%        %[parameters, simulation] = setup_hairs_for_velocity(paths, parameters);
+%    end
+%    disp('read_in_velocities')
+%    [parameters, simulation] = read_in_velocity_data_p1(paths, parameters, simulation);
+% end
 
 %initializes Nx and Ny 
 parameters.Nx = round(parameters.xlength/parameters.dx);
@@ -57,14 +63,16 @@ if (abs(parameters.Nx*parameters.dx-parameters.xlength)>1e-15) || (abs(parameter
 end
 
 %initialize x and y 
-simulation.x(1:parameters.Nx+1,1)=(0:parameters.Nx)*parameters.dx; 
-simulation.y(1:parameters.Ny+1,1)=(0:parameters.Ny)*parameters.dy; 
+%simulation.x = reshape(simulation.x_ibamr(1,:),[],1);
+%simulation.y = simulation.y_ibamr(:,1);
+simulation.x(1:parameters.Nx+1,1)=(0:parameters.Nx)*parameters.dx+parameters.domainlimits(1); 
+simulation.y(1:parameters.Ny+1,1)=(0:parameters.Ny)*parameters.dy+parameters.domainlimits(3); 
 %for periodic/noflux bc 
 %x(1:Nx,1)=(0:Nx-1)*dx; 
 %y(1:Ny+1,1)=(0:Ny)*dy; 
 
 %initializing time stepping variables
-parameters.dt = min(0.9*parameters.dx/parameters.dtfactor, parameters.dthairfactor^2/4/parameters.D); 
+simulation.dt = min(0.9*parameters.dx/parameters.dtfactor, parameters.dthairfactor^2/4/parameters.D); 
 if exist('parameters.dtmultiplier')
     parameters.dt = parameters.dtmultiplier*parameters.dt; 
 end
@@ -74,8 +82,8 @@ end
 if exist('parameters.t_final_factor_flick', 'var')
    parameters.t_final_flick = parameters.dt*parameters.t_final_factor_flick;
 end
-parameters.t_steps_flick = ceil(parameters.t_final_flick/parameters.dt);
-parameters.dt_flick = parameters.t_final_flick/parameters.t_steps_flick;
+simulation.t_steps_flick = ceil(parameters.t_final_flick/simulation.dt);
+simulation.dt_flick = parameters.t_final_flick/simulation.t_steps_flick;
 
 simulation.t = 0; 
 simulation.pcount = 1; 
@@ -96,14 +104,14 @@ simulation.v = zeros(parameters.Nx+1,parameters.Ny+1);
 %fprintf('\t number of tsteps: flick: %d\t,t_steps_flick);
 %fprintf('\t xlength by ylength: %4.16f by %4.16f\n',xlength,ylength); 
 
-fprintf('\t dx = %4.16f\n\t dy = %4.16f\n\t dt = %4.25f\n ', parameters.dx, parameters.dy, parameters.dt_flick);
+fprintf('\t dx = %4.16f\n\t dy = %4.16f\n\t dt = %4.25f\n ', parameters.dx, parameters.dy, simulation.dt_flick);
 fprintf('\t Grid (Nx by Ny) : %d by %d\n', parameters.Nx, parameters.Ny);
 fprintf('\t final times: flick: %4.16f\n', parameters.t_final_flick);
-fprintf('\t number of tsteps: flick: %d\n',parameters.t_steps_flick);
+fprintf('\t number of tsteps: flick: %d\n',simulation.t_steps_flick);
 fprintf('\t xlength by ylength: %4.16f by %4.16f\n',parameters.xlength,parameters.ylength); 
 
 if (parameters.handle_hairs)
-    [parameters, simulation] = setup_hairs(paths, parameters, simulation); 
+    [parameters, simulation] = setup_hairs(parameters, simulation); 
 end
 
 

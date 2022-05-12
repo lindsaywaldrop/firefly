@@ -37,27 +37,27 @@ else
 
     %filename
     if strcmp(flickorreturn,'flick') 
-        flickdata = load(strcat(paths.pathbase_piv, parameters.piv_data_filename, '.mat'));
+        flickdata = load(strcat(paths.pathbase_ibamr, parameters.ibamr_data_filename, '.mat'));
         shift_comp = 1; 
     %elseif strcmp(flickorreturn,'return')
-    %    load(['pivdata/', piv_data_returnfilename '.mat']) 
+    %    load(['pivdata/', ibamr_data_returnfilename '.mat']) 
     %    shift_comp = 2; 
     else
         error('not a type of piv velocity')
     end
     
     %data is in cm and needs to be transposed - NO LONGER TRUE 
-    xpiv = parameters.piv_data_filename_interior.conversion_factor*(eval(['flickdata.' parameters.piv_data_filename_interior.x]));      
-    ypiv = parameters.piv_data_filename_interior.conversion_factor*(eval(['flickdata.' parameters.piv_data_filename_interior.y]));
+    xpiv = parameters.ibamr_data_filename_interior.conversion_factor*(eval(['flickdata.' parameters.ibamr_data_filename_interior.x]));      
+    ypiv = parameters.ibamr_data_filename_interior.conversion_factor*(eval(['flickdata.' parameters.ibamr_data_filename_interior.y]));
 
     %shift the data so that it agrees with the concentration grid
     %minus 2 allows for extrap for weno2
-    xpiv = xpiv + parameters.xshift_piv_data(shift_comp);
-    ypiv = ypiv + parameters.yshift_piv_data(shift_comp); 
+    xpiv = xpiv + parameters.xshift_ibamr_data(shift_comp);
+    ypiv = ypiv + parameters.yshift_ibamr_data(shift_comp); 
 
     %if data is in different units and needs to be transposed
-    upiv = parameters.piv_data_filename_interior.conversion_factor*(eval(['flickdata.' parameters.piv_data_filename_interior.u]));      
-    vpiv = parameters.piv_data_filename_interior.conversion_factor*(eval(['flickdata.' parameters.piv_data_filename_interior.v]));
+    upiv = parameters.ibamr_data_filename_interior.conversion_factor*(eval(['flickdata.' parameters.ibamr_data_filename_interior.u]));      
+    vpiv = parameters.ibamr_data_filename_interior.conversion_factor*(eval(['flickdata.' parameters.ibamr_data_filename_interior.v]));
 
     %temp if there are nans in the original data
     [iupiv] = find(isnan(upiv)==1);

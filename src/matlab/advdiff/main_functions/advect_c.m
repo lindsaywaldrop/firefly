@@ -11,6 +11,9 @@ NNx = NNx(1);
 NNy = size(simulation.c);
 NNy = NNy(2); 
 
+dx = parameters.dx;
+dy = parameters.dy;
+
 %boundary conditions
 %note for WENO we also reset bcs
 if strcmp(bc,'dirichlet')
@@ -217,7 +220,7 @@ elseif strcmp(method,'weno')
     
     %timestepping - TVD RK3 from Shu 1997
     
-    c1 = simulation.c + delt*wenoflux(parameters, simulation.c, velocities.u, velocities.v,...
+    c1 = simulation.c + delt*wenoflux(parameters, dx, dy, simulation.c, velocities.u, velocities.v,...
     									uplusx,uminusx,uplus2x,uminus2x,...
     									vplusy,vminusy,vplus2y,vminus2y,cplusx,...
     									cminusx,cplusy,cminusy,cplus2x,cminus2x,...
@@ -245,7 +248,7 @@ elseif strcmp(method,'weno')
     %cplus2y = evaluate_plus(cplusy,NNx,NNy,'noflux',0);
     %cminus2y = evaluate_minus(cminusy,NNx,NNy,'noflux',0);
     
-    c2 = 3*simulation.c/4 + c1/4 + delt*wenoflux(parameters, c1, velocities.u, velocities.v, uplusx,...
+    c2 = 3*simulation.c/4 + c1/4 + delt*wenoflux(parameters, dx, dy, c1, velocities.u, velocities.v, uplusx,...
     												uminusx, uplus2x, uminus2x, vplusy, vminusy,... 
     												vplus2y, vminus2y, cplusx, cminusx, cplusy,... 
     												cminusy, cplus2x, cminus2x, cplus2y, cminus2y)/4;
@@ -273,7 +276,7 @@ elseif strcmp(method,'weno')
     %cminus2y = evaluate_minus(cminusy,NNx,NNy,'noflux',0);
     
     simulation.c = simulation.c/3 + 2*c2/3 + 2*delt*...
-    				wenoflux(parameters, c2, velocities.u, velocities.v, uplusx, uminusx, uplus2x,...
+    				wenoflux(parameters, dx, dy, c2, velocities.u, velocities.v, uplusx, uminusx, uplus2x,...
     				uminus2x, vplusy, vminusy, vplus2y, vminus2y, cplusx, cminusx,...
     				cplusy, cminusy, cplus2x, cminus2x, cplus2y, cminus2y)/3;
   
@@ -285,7 +288,7 @@ else
 end
 
 
-function [f] = wenoflux(parameters, cc, uu, vv, uuplusx, uuminusx, uuplus2x, uuminus2x, ...
+function [f] = wenoflux(parameters, dx, dy, cc, uu, vv, uuplusx, uuminusx, uuplus2x, uuminus2x, ...
 						vvplusy, vvminusy, vvplus2y, vvminus2y, ccplusx, ccminusx, ccplusy,...
 						ccminusy, ccplus2x, ccminus2x, ccplus2y, ccminus2y)
 %takes care of spatial derivatives for weno
@@ -381,8 +384,8 @@ ahalfy(:,2:NNy+1) = betay0minus(:,2:end)./(ccplusy-cc);
 fxhalf = (ahalfx >= 0).*fxhalfminus + (ahalfx < 0).*fxhalfplus;
 fyhalf =  (ahalfy >= 0).*fyhalfminus + (ahalfy < 0).*fyhalfplus;
 
-fx = (fxhalf(1:end-1,:) - fxhalf(2:end,:))/parameters.dx;
-fy = (fyhalf(:,1:end-1) - fyhalf(:,2:end))/parameters.dy;
+fx = (fxhalf(1:end-1,:) - fxhalf(2:end,:))/dx;
+fy = (fyhalf(:,1:end-1) - fyhalf(:,2:end))/dy;
 
 f = fx+fy;  
 

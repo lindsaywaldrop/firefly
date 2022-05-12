@@ -39,7 +39,8 @@ paths.pathbase_data = strcat(topdir, '/data/');
 paths.pathbase_results = strcat(topdir, '/results/odorcapture/', Species, '/');
 parameters.Species = Species;
 parameters.L = 400e-6;
-parameters.domainlimits = [-0.5*parameters.L 0.5*parameters.L 0 0.5*parameters.L];
+parameters.domainlimits = [-0.5*parameters.L 0.5*parameters.L 0+5e-6 0.35*parameters.L];
+
 if clpool == 1
     
     for i=1:length(files)
@@ -64,7 +65,7 @@ if clpool == 1
         
 		% Interpolates velocity fields and saves.
         disp(['Interpolating velocity fields for ', files{i}])
-        entsniffinterp(i, files, paths.pathbase_ibamr, parameters.GridSize, sprintf('%05d', parameters.final_time));
+        entsniffinterp(i, files, paths.pathbase_ibamr, parameters.GridSize, sprintf('%05d',parameters.final_time));
         disp('    ')
 
         % Run Shilpa's code

@@ -1,4 +1,4 @@
-function [parameters, simulation] = setup_hairs(paths, parameters, simulation) 
+function [parameters, simulation] = setup_hairs(parameters, simulation) 
 
 %global hairs_data_filename hairs_data_filename_interior
 %global pathbase_data hairNum run_id
@@ -14,28 +14,25 @@ function [parameters, simulation] = setup_hairs(paths, parameters, simulation)
 
 [xx,yy] = ndgrid(simulation.x, simulation.y);
 
-%hairs filename
-flickdata = load(strcat(paths.pathbase_data, 'hairinfo-files/', num2str(parameters.hairNum),...
-    'hair_files/', parameters.hairs_data_filename, '.mat'));  
-% [flickdata.p] = convert_hairdata(pathbase_data,hairNum,str2double(run_id));
-
-
-%loads the location of the hairs
-flick_hairs = eval(['flickdata.' parameters.hairs_data_filename_interior.filename '.' parameters.hairs_data_filename_interior.hairs]); 
-
-% Set domain limits based on hairs
-xLmin = min([flick_hairs.x]) - 0.05;
-xLmax = max([flick_hairs.x]) + 0.15;
-yLmin = min([flick_hairs.y]) - 0.05;
-yLmax = max([flick_hairs.y]) + 0.05;
-parameters.domainlimits = [xLmin, xLmax, yLmin, yLmax];
-
 %initializes the concentration absorbed by each hair
 simulation.hairs_c = struct([]);
+max_x = zeros(1,parameters.hairNum);
+%figure
+%hold on
+for yip=1:parameters.hairNum
+    temp_in = inpolygon(xx,yy,parameters.flick_x_hairs{1,yip},parameters.flick_y_hairs{1,yip});
+    max_x(yip) = max(max(parameters.flick_x_hairs{1,yip}));
+    simulation.inhair_ids{yip} = find(temp_in);
+    simulation.hairs_c{yip} = zeros(size(simulation.inhair_ids{yip})); 
+    %plot(simulation.x(temp_in),simulation.y(temp_in),'b.')
+end
+%hold off
+
+parameters.far_right_hair = max(max_x); 
 
 %if a radius is given for each hairs and the location of the hairs just
 %gives the center of each hair 
-if (parameters.hairs_data_filename_interior.givenradius)
+%if (parameters.hairs_data_filename_interior.givenradius)
    
     %%NO LONGER TRUE  
     %%we assume here that the hairs in the flick and return have the same size and shape
@@ -49,33 +46,32 @@ if (parameters.hairs_data_filename_interior.givenradius)
     %we use the information from the flick hairs 
     %radius of the hairs from params file -> now in meters 
      
-    parameters.hairs_radius = parameters.hairs_data_filename_interior.conversion_factor*...
-    	eval(['flickdata.'  parameters.hairs_data_filename_interior.filename '.' parameters.hairs_data_filename_interior.radius]);
+    %parameters.hairs_radius = parameters.hairs_data_filename_interior.conversion_factor*...
+    %	eval(['flickdata.'  parameters.hairs_data_filename_interior.filename '.' parameters.hairs_data_filename_interior.radius]);
     %hairs_radius = 4*hairs_radius
     
     %find indices of points inside the hairs 
-    for i=1:length(flick_hairs)
-        distance_to_hair_squared = 0;
-        simulation.x_hairs = 0;
-        simulation.y_hairs = 0; 
-        simulation.x_hairs = parameters.hairs_data_filename_interior.conversion_factor*flick_hairs(i).x + parameters.xshift_piv_data(1);
-        simulation.y_hairs = parameters.hairs_data_filename_interior.conversion_factor*flick_hairs(i).y + parameters.yshift_piv_data(1); 
-		distance_to_hair_squared = (xx-simulation.x_hairs).^2 + (yy-simulation.y_hairs).^2;
-        %linear indices in matrix c 
-        [simulation.ptindex_hairs{i}]= find(distance_to_hair_squared <= parameters.hairs_radius^2); 
-        %finishes initialization of the concentration absorbed by each hair
-        simulation.hairs_c{i} = zeros(length(simulation.ptindex_hairs{i}),1); 
-        simulation.hairs_center(i,:) = [simulation.x_hairs, simulation.y_hairs];
-    end
-    %finding the farthest right point on any hair based on just the flick hairs
-    parameters.far_right_hair = max(simulation.hairs_center(:,1))+parameters.hairs_radius; 
-    
+%     for i=1:length(flick_hairs)
+%         distance_to_hair_squared = 0;
+%         simulation.x_hairs = 0;
+%         simulation.y_hairs = 0; 
+%         simulation.x_hairs = parameters.hairs_data_filename_interior.conversion_factor*flick_hairs(i).x + parameters.xshift_piv_data(1);
+%         simulation.y_hairs = parameters.hairs_data_filename_interior.conversion_factor*flick_hairs(i).y + parameters.yshift_piv_data(1); 
+% 		distance_to_hair_squared = (xx-simulation.x_hairs).^2 + (yy-simulation.y_hairs).^2;
+%         %linear indices in matrix c 
+%         [simulation.ptindex_hairs{i}]= find(distance_to_hair_squared <= parameters.hairs_radius^2); 
+%         %finishes initialization of the concentration absorbed by each hair
+%         simulation.hairs_c{i} = zeros(length(simulation.ptindex_hairs{i}),1); 
+%         simulation.hairs_center(i,:) = [simulation.x_hairs, simulation.y_hairs];
+%     end
+%     %finding the farthest right point on any hair based on just the flick hairs
+%     parameters.far_right_hair = max(simulation.hairs_center(:,1))+parameters.hairs_radius; 
+%     
 %    
     
     
     
-end
-    
+% end    
 
 
 % figure(1)

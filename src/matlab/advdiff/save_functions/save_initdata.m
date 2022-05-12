@@ -14,11 +14,11 @@ ylength = parameters.ylength;
 x = simulation.x; 
 y = simulation.y; 
 explicit_vel = parameters.explicit_vel;
-D = parameters.D;
-dt = parameters.dt; 
-dt_flick = parameters.dt_flick;
-t_final_flick = parameters.t_final_flick;
-run_id = parameters.run_id;
+D = simulation.D;
+dt = simulation.dt; 
+dt_flick =simulation.dt_flick;
+t_final_flick = simulation.t_final_flick;
+run_id = simulation.run_id;
 
 
 %the default extension is .mat

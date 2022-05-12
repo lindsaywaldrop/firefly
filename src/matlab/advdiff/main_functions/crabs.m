@@ -22,7 +22,7 @@ save_data(paths, parameters, simulation, 1);
 %FLICK
 disp('Creating and saving velocity data')
 disp('  ')
-[velocities] = get_velocities(parameters.dt_flick/2,simulation.t,parameters.explicit_vel,'flick', paths, parameters, simulation);
+[velocities] = get_velocities(simulation.dt_flick/2,simulation.t,'piv_data','flick', paths, parameters, simulation);
 save_data_vel(1, 'flick', paths, parameters, velocities);
 disp('Done!')
 disp(' ')
@@ -33,32 +33,32 @@ disp('Starting first flick...')
 %could speed this up by taking out the if else statements from the for loop
 
 %advection - first step
-[simulation] = advect_c(parameters.dt_flick/2, 'dirichlet', 'weno', ...
-												parameters, simulation, velocities);
+[simulation] = advect_c(simulation.dt_flick/2, 'dirichlet', 'weno', parameters, simulation, velocities);
 disp('.')
-for timestep = 1:parameters.t_steps_flick
+
+for timestep = 1:simulation.t_steps_flick
    
   %diffusion  
   %if first timestep then initialze the diffusion matrix   
   if (timestep == 1) 
-      [simulation] = diffusion_c(parameters.dt_flick, 1, parameters.diffusionrhsbc_flick, parameters, simulation);
+      [simulation] = diffusion_c(simulation.dt_flick, 1, parameters.diffusionrhsbc_flick, parameters, simulation);
       disp('.')
   else
-      [simulation] = diffusion_c(parameters.dt_flick, 0, parameters.diffusionrhsbc_flick, parameters, simulation); 
+      [simulation] = diffusion_c(simulation.dt_flick, 0, parameters.diffusionrhsbc_flick, parameters, simulation); 
   end
   [simulation] = concentration_absorbed_by_hairs(simulation);
   %advection 
   %if not at the last timestep then step with dt but if at the last
   %timestep then step only dt/2    
-  if (timestep ~= parameters.t_steps_flick)
-     [simulation] = advect_c(parameters.dt_flick,'dirichlet','weno', ...
+  if (timestep ~= simulation.t_steps_flick)
+     [simulation] = advect_c(simulation.dt_flick,'dirichlet','weno', ...
 												parameters, simulation, velocities);
-  elseif (timestep == parameters.t_steps_flick) 
-     [simulation] = advect_c(parameters.dt_flick/2,'dirichlet','weno',  ...
+  elseif (timestep == simulation.t_steps_flick) 
+     [simulation] = advect_c(simulation.dt_flick/2,'dirichlet','weno',  ...
 												parameters, simulation, velocities);
   end
   
-  simulation.t = simulation.t + parameters.dt_flick; 
+  simulation.t = simulation.t + simulation.dt_flick; 
   simulation.t_steps = simulation.t_steps + 1; 
   
   %saving data

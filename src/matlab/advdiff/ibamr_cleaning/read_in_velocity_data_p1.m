@@ -15,21 +15,21 @@ function [parameters, simulation] = read_in_velocity_data_p1(paths, parameters, 
 %global xshift_piv_data yshift_piv_data
 %global Nxcoarse 
 
-strcat(paths.pathbase_piv, parameters.piv_data_filename, '.mat')
+strcat(paths.pathbase_ibamr, parameters.ibamr_data_filename, '.mat')
 
 %filenames
-flickdata = load([paths.pathbase_piv parameters.piv_data_filename '.mat']);
+flickdata = load([paths.pathbase_ibamr parameters.ibamr_data_filename '.mat']);
 
 %finding the endpts for x_length and y_length (data is in m) 
-flick_xpiv = eval(['flickdata.' parameters.piv_data_filename_interior.x]);     
-flick_ypiv = eval(['flickdata.' parameters.piv_data_filename_interior.y]);
+flick_xpiv = eval(['flickdata.' parameters.ibamr_data_filename_interior.x]);     
+flick_ypiv = eval(['flickdata.' parameters.ibamr_data_filename_interior.y]);
 
 
 if  strcmp(parameters.domainlimits,'auto')
-    xLmin = parameters.piv_data_filename_interior.conversion_factor*max(flick_xpiv(:,1));
-    xLmax = parameters.piv_data_filename_interior.conversion_factor*min(flick_xpiv(:,end));
-    yLmin = parameters.piv_data_filename_interior.conversion_factor*max(flick_ypiv(1,:)); 
-    yLmax = parameters.piv_data_filename_interior.conversion_factor*min(flick_ypiv(end,:)); 
+    xLmin = parameters.ibamr_data_filename_interior.conversion_factor*max(flick_xpiv(:,1));
+    xLmax = parameters.ibamr_data_filename_interior.conversion_factor*min(flick_xpiv(:,end));
+    yLmin = parameters.ibamr_data_filename_interior.conversion_factor*max(flick_ypiv(1,:)); 
+    yLmax = parameters.ibamr_data_filename_interior.conversion_factor*min(flick_ypiv(end,:)); 
 else
     xLmin = parameters.domainlimits(1); 
     xLmax = parameters.domainlimits(2); 
@@ -39,27 +39,31 @@ end
 
 %setting x_length and y_length 
 
-xlength = xLmax - xLmin; 
-ylength = yLmax - yLmin; 
+xlength_newd = xLmax - xLmin; 
+ylength_newd = yLmax - yLmin; 
 
 
-coarsedx = xlength/parameters.Nxcoarse;
-coarsedy = coarsedx;
+%coarsedx = (max(max(flick_xpiv))-min(min(flick_xpiv)))/parameters.Nxcoarse;
+%coarsedy = coarsedx;
 
-parameters.Nycoarse = floor(ylength/coarsedy);
-parameters.Nycoarse_shift = coarsedy*(ylength/coarsedy - floor(ylength/coarsedy))/2;
+%parameters.Nycoarse = floor(ylength/coarsedy);
+%parameters.Nycoarse_shift = coarsedy*(ylength/coarsedy - floor(ylength/coarsedy))/2;
 
-parameters.dx = xlength/parameters.Nx;
-parameters.dy = parameters.dx;
+parameters.dx = (max(max(flick_xpiv))-min(min(flick_xpiv)))/parameters.GridSize;
+parameters.dy = (max(max(flick_ypiv))-min(min(flick_ypiv)))/parameters.GridSize;
+
+parameters.Nx = floor(xlength_newd/parameters.dx);
+parameters.Ny = floor(ylength_newd/parameters.dy);
 
 %minus 4 allows for extrap for weno2
-parameters.xlength = (parameters.Nxcoarse-4)*coarsedx;
-parameters.ylength = (parameters.Nycoarse-4)*coarsedy;
+parameters.xlength = (parameters.Nx-4)*parameters.dx;
+parameters.ylength = (parameters.Ny-4)*parameters.dy;
 
 %flickdata shift 
-parameters.xshift_piv_data(1) = -xLmin-2*coarsedx;
-parameters.yshift_piv_data(1) = -yLmin-2*coarsedy-parameters.Nycoarse_shift;
+%parameters.xshift_ibamr_data(1) = -xLmin-2*coarsedx;
+%parameters.yshift_ibamr_data(1) = -yLmin-2*coarsedy-parameters.Nycoarse_shift;
 
-
+parameters.xshift_ibamr_data(1) = 0;
+parameters.yshift_ibamr_data(1) = 0;
 
 
