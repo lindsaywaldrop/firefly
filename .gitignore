@@ -4,8 +4,5 @@
 .Ruserdata
 
 *~
-*.vtk
-*.samrai
-*.silo
 *.DS_Store
 */Dump--hair4/*
