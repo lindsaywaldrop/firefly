@@ -1,19 +1,16 @@
 #!/bin/bash
-#SBATCH -t 30:00:00
-#SBATCH -p RM
+#SBATCH -t 24:00:00
+#SBATCH -p defq
 #SBATCH -N 1
-#SBATCH --ntasks-per-node 8
+#SBATCH --ntasks-per-node 1
 #SBATCH --mail-type ALL
 #SBATCH -C EGRESS
 
 # echo commands to stdout
 set -x 
 
-# Number of hairs in the array
-array=3
-
-# Fluid
-fluid=\'air\'
+# Species
+Species = \'Lucidota_sp\'
 
 # First number
 a=1
@@ -22,7 +19,7 @@ a=1
 b=1
 
 # Set path 
-WD=/pylon5/bi561lp/lwaldrop/entcode
+WD=/home/waldrop@chapman.edu/firefly
 MatWD=\'$WD\'
 
 # move to working directory
@@ -32,6 +29,6 @@ cd "${WD}"/src/matlab
 module load matlab
 
 # run matlab program
-matlab -r "entsniff(${MatWD},$array,${fluid},$a:$b,8);exit"
+matlab -r "entsniff(${WD},${Species},$a:$b,1);exit"
 
 wait
