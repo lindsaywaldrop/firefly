@@ -4,13 +4,14 @@
 #SBATCH -N 1
 #SBATCH --ntasks-per-node 1
 #SBATCH --mail-type ALL
-#SBATCH -C EGRESS
+#SBATCH --mem-per-cpu 8000
+# SBATCH -C EGRESS
 
 # echo commands to stdout
 set -x 
 
 # Species
-Species = \'Lucidota_sp\'
+Species=\'Lucidota_sp\'
 
 # First number
 a=1
@@ -20,15 +21,23 @@ b=1
 
 # Set path 
 WD=/home/waldrop@chapman.edu/firefly
-MatWD=\'$WD\'
+MATWD=\'$WD\'
+
+# create output directories
+mkdir "${WD}"/results
+mkdir "${WD}"/results/odorcapture
+mkdir "${WD}"/results/odorcapture/"${Species}"
+mkdir "${WD}"/data
+mkdir "${WD}"/data/hairinfo-files
+mkdir "${WD}"/data/hairinfo-files/"${Species}"
 
 # move to working directory
-cd "${WD}"/src/matlab
+cd "${WD}"/src/matlab/advdiff
 
 # add appropriate modules
 module load matlab
 
 # run matlab program
-matlab -r "entsniff(${WD},${Species},$a:$b,1);exit"
+matlab -r "entsniff(${MATWD},${Species},$a:$b,1);exit"
 
 wait

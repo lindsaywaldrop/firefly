@@ -1,0 +1,42 @@
+#!/bin/bash
+#SBATCH -p defq
+#SBATCH -t 12:00:00
+#SBATCH -N 1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mail-type=ALL
+
+# echo commands to stdout
+set -x 
+
+# Set simulation number 
+i=2
+
+# Set path 
+WD=/home/waldrop@chapman.edu/firefly
+
+# move to working directory
+cd "${WD}"/bin
+
+# add appropriate modules
+module load  psc_path/1.1 slurm/default git/2.10.2 xdusage/2.1-1 intel/19.5 mpi/intel_openmpi/19.5 hdf5/1.8.16_intel silo/4.10.2-intel-lw boost/1.60.0-intel-lw petsc/3.7.2-intel-lw samrai/2.4.4-intel-lw IBAMR/IBAMR-intel-lw
+
+# Copy data files to bin directory
+cp "${WD}/data/input2d-files/input2d${i}" .
+cp "${WD}/data/parameters-files/parameters${i}" .
+
+# run MPI program
+mpirun -n $SLURM_NTASKS ./main2d input2d${i} parameters${i}
+rm input2d${i} parameters${i}
+
+Freq=$(awk -v var="$i" 'NR==var' "${WD}"/data/parameters/Freq.txt)
+
+cd "${WD}"/results/ibamr/runs/
+if [ $(echo " $test <= 0.70" | bc) -eq 1 ]
+then
+test -d viz_IB2d${i}/lag_data.cycle_35000 && zip -r viz_IB2d${i}.zip viz_IB2d${i}/;zip -r hier_data_IB2d${i}.zip hier_data_IB2d${i}/ || echo "Simulation failed"
+elif [ $(echo " $test < 1.0" | bc) -eq 1 ]
+then
+test -d viz_IB2d${i}/lag_data.cycle_30000 && zip -r viz_IB2d${i}.zip viz_IB2d${i}/;zip -r hier_data_IB2d${i}.zip hier_data_IB2d${i}/ || echo "Simulation failed"
+else
+test -d viz_IB2d${i}/lag_data.cycle_25000 && zip -r viz_IB2d${i}.zip viz_IB2d${i}/;zip -r hier_data_IB2d${i}.zip hier_data_IB2d${i}/ || echo "Simulation failed"
+fi
