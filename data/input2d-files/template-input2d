@@ -1,0 +1,335 @@
+// physical parameters
+//
+L = 0.000400                                   // length of the computational (fluid) domain (m)
+RHO = 1000  				  //fluid mass density (kg/m^3)
+FS = 0.001				  // Flow speed of tank (m/s)
+//RE = 1.505   // Reynolds number of real aesthetasc
+DD = 0.000002				  // diameter of model aesthetasc in simulation (m)
+//MU = DD*RHO*FS/RE                           // fluid dynamic viscosity (N s / m^2)
+MU=1.5e-5 //
+//
+//
+// grid spacing parameters
+
+MAX_LEVELS = 1                            // maximum number of levels in locally refined grid
+REF_RATIO  = 1                            // refinement ratio between levels
+N = 1024                                     // actual    number of grid cells on coarsest grid level
+NFINEST = (REF_RATIO^(MAX_LEVELS - 1))*N  // effective number of grid cells on finest   grid level
+DX = (1.0*L)/NFINEST                      // Cartesian mesh width (m)
+//
+// solver parameters
+DELTA_FUNCTION      = "IB_4"              //
+START_TIME          = 0.0e0               // initial simulation time
+END_TIME            = 0.03               // final simulation time
+GROW_DT             = 2.0e0               // growth factor for timesteps
+NUM_CYCLES          = 1                   // number of cycles of fixed-point iteration
+CONVECTIVE_OP_TYPE  = "PPM"               // convective differencing discretization type
+CONVECTIVE_FORM     = "ADVECTIVE"         // how to compute the convective terms
+NORMALIZE_PRESSURE  = TRUE                // whether to explicitly force the pressure to have mean zero
+CFL_MAX             = 0.3                 // maximum CFL number
+DT = 1.0e-5                               // timestep duration (s)
+
+ERROR_ON_DT_CHANGE  = TRUE                // whether to emit an error message if the time step size changes
+
+VORTICITY_TAGGING   = TRUE                // whether to tag cells for refinement based on vorticity thresholds
+
+TAG_BUFFER          = 2                   // size of tag buffer used by grid generation algorithm
+
+REGRID_CFL_INTERVAL = 0.5                 // regrid whenever any material point could have moved 0.5 meshwidths since previous regrid
+OUTPUT_U            = TRUE                //
+OUTPUT_P            = TRUE                //
+OUTPUT_F            = FALSE                //
+OUTPUT_OMEGA        = TRUE                //
+OUTPUT_DIV_U        = TRUE                //
+ENABLE_LOGGING      = TRUE                //
+//
+CartesianGeometry {                //
+   domain_boxes = [ (0,0) , (N - 1,2*N - 1) ]                //
+   x_lo = -L, 0  // lower end of computational domain.
+   x_up =  L, L  // upper end of computational domain.
+   periodic_dimension = 0,0                //
+} //
+//
+GriddingAlgorithm { //
+   allow_patches_smaller_than_minimum_size_to_prevent_overlaps = TRUE //
+//
+   max_levels = MAX_LEVELS           // Maximum number of levels in hierarchy.
+   ratio_to_coarser { //
+      level_1 = REF_RATIO,REF_RATIO  // vector ratio to next coarser level
+      level_2 = REF_RATIO,REF_RATIO                //
+      level_3 = REF_RATIO,REF_RATIO                //
+      level_4 = REF_RATIO,REF_RATIO                //
+      level_5 = REF_RATIO,REF_RATIO                //
+   } //
+                //
+   largest_patch_size {                //
+      level_0 = NFINEST, NFINEST  // largest patch allowed in hierarchy
+                                  // NOTE: all finer levels will use same values as level_0...
+   } //
+//
+   smallest_patch_size {                //
+      level_0 = 8, 8              // smallest patch allowed in hierarchy
+                                  // NOTE: all finer levels will use same values as level_0...
+   }                //
+//
+   efficiency_tolerance   = 0.85e0    // min % of tag cells in new patch level
+   combine_efficiency     = 0.85e0    // chop box if sum of volumes of smaller
+                                      // boxes < efficiency * vol of large box
+} //
+//
+IBHierarchyIntegrator {                //
+   start_time          = START_TIME                //
+   end_time            = END_TIME                //
+   grow_dt             = GROW_DT                //
+   num_cycles          = NUM_CYCLES                //
+   regrid_cfl_interval = REGRID_CFL_INTERVAL                //
+   dt_max              = DT                //
+   error_on_dt_change  = ERROR_ON_DT_CHANGE                //
+   tag_buffer          = TAG_BUFFER                //
+   enable_logging      = ENABLE_LOGGING                //
+} //
+//
+ConstraintIBMethod { //
+   delta_fcn                = DELTA_FUNCTION  //
+   enable_logging           = ENABLE_LOGGING  //
+   num_INS_cycles           = NUM_CYCLES //
+   needs_divfree_projection = FALSE  //
+   rho_fluid                = RHO //
+   rho_solid		    = RHO //
+   mu_fluid                 = MU //
+//
+   PrintOutput { //
+   print_output          = TRUE               //default false
+   output_interval       = 1                  //default 1
+   output_drag           = TRUE               //default false
+   output_power          = FALSE              //default false
+   output_rig_transvel   = TRUE               //default false
+   output_rig_rotvel     = TRUE               //default false
+   output_com_coords     = TRUE               //default false
+   output_moment_inertia = TRUE               //default false 
+   output_dirname        = "./Dump--hair4"    //default "./ConstraintIBMethodDump" 
+   base_filename         = "hairs"      //default  "ImmersedStructure" 
+  } //
+//
+} //
+                //
+IBStandardInitializer {                //
+   max_levels = MAX_LEVELS                //
+   structure_names = "Lucidota_sp"    // 
+   Lucidota_sp{   // 
+      level_number = MAX_LEVELS - 1                //
+   } //
+//   hair2_2d_512_1 {                //
+//      level_number = MAX_LEVELS - 1                //
+//   } //
+//   hair3_2d_512_1 {                //
+//      level_number = MAX_LEVELS - 1                //
+//   } // 
+//   ant_2d_512_1 {                //
+//      level_number = MAX_LEVELS - 1                //
+//   } // 
+} //
+//
+INSStaggeredHierarchyIntegrator {                //
+   mu                         = MU                //
+   rho                        = RHO                //
+   start_time                 = START_TIME                //
+   end_time                   = END_TIME                //
+   grow_dt                    = GROW_DT                //
+   convective_op_type         = CONVECTIVE_OP_TYPE                //
+   convective_difference_form = CONVECTIVE_FORM                //
+   normalize_pressure         = NORMALIZE_PRESSURE                //
+   cfl                        = CFL_MAX                //
+   dt_max                     = DT                //
+   using_vorticity_tagging    = VORTICITY_TAGGING                //
+   vorticity_abs_thresh       = 0.1                //
+   tag_buffer                 = TAG_BUFFER                //
+   output_U                   = OUTPUT_U                //
+   output_P                   = OUTPUT_P                //
+   output_F                   = OUTPUT_F                //
+   output_Omega               = OUTPUT_OMEGA                //
+   output_Div_U               = OUTPUT_DIV_U                //
+   enable_logging             = ENABLE_LOGGING                //
+//
+   VelocityHypreSolver {                //
+      solver_type           = "Split"                //
+      split_solver_type     = "PFMG"                //
+      relative_residual_tol = 1.0e-12                //
+      max_iterations        = 1                //
+      enable_logging        = FALSE                //
+   } //
+//
+   VelocityFACSolver {                //
+      num_pre_sweeps  = 0                //
+      num_post_sweeps = 1                //
+      coarse_solver_choice = "hypre"                //
+      coarse_solver_tolerance = 1.0e-12                //
+      coarse_solver_max_iterations = 1                //
+      prolongation_method = "CONSTANT_REFINE"                //
+      restriction_method  = "CONSERVATIVE_COARSEN"                //
+      hypre_solver {                //
+         solver_type           = "Split"                //
+         split_solver_type     = "PFMG"                //
+         relative_residual_tol = 1.0e-12                //
+         max_iterations        = 1                //
+         enable_logging        = FALSE                //
+      } //
+   } //
+//
+   PressureHypreSolver {                //
+      solver_type           = "PFMG"                //
+      rap_type              = 0                //
+      relax_type            = 2                //
+      skip_relax            = 1                //
+      num_pre_relax_steps   = 2                //
+      num_post_relax_steps  = 2                //
+      relative_residual_tol = 1.0e-2                //
+      max_iterations        = 100                //
+      enable_logging        = FALSE                //
+   }                //
+//
+   PressureFACSolver { //
+      num_pre_sweeps  = 0                //
+      num_post_sweeps = 3                //
+      coarse_solver_choice = "hypre"                //
+      coarse_solver_tolerance = 1.0e-12                //
+      coarse_solver_max_iterations = 1                //
+      prolongation_method = "LINEAR_REFINE"                //
+      restriction_method  = "CONSERVATIVE_COARSEN"                //
+      hypre_solver {                //
+         solver_type           = "PFMG"                //
+         rap_type              = 0                //
+         relax_type            = 2                //
+         skip_relax            = 1                //
+         num_pre_relax_steps   = 0                //
+         num_post_relax_steps  = 3                //
+         relative_residual_tol = 1.0e-12                //
+         max_iterations        = 1                //
+         enable_logging        = FALSE                //
+      }                //
+   }                //
+}                //
+//
+LoadBalancer {                //
+   bin_pack_method     = "SPATIAL"                //
+   max_workload_factor = 1                //
+}                //
+//
+ConstraintIBKinematics {
+
+     hairs {
+     structure_names                  = "Lucidota_sp"   // 
+     structure_levels                 = MAX_LEVELS - 1
+     calculate_translational_momentum = 0,0,0
+     calculate_rotational_momentum    = 0,0,0
+     lag_position_update_method       = "CONSTRAINT_VELOCITY"
+     tagged_pt_identifier             = MAX_LEVELS - 1, 0  // level, relative idx of lag point
+
+     kinematics_velocity_function_0   = "0.0"
+     kinematics_velocity_function_1   = "0.0"
+     kinematics_velocity_function_2   = "0.0"
+
+    }
+
+}
+
+
+  PrintOutput {
+
+      print_output                = TRUE    //default false, if false nothing will be printed.
+      output_interval             = 1       //default 1
+      output_drag_kinetic_energy  = TRUE    //default false, if false it will not be computed.
+      output_power                = FALSE    //default false, if false it will not be computed.
+      output_rig_transvel         = FALSE    //default false
+      output_rig_rotvel           = FALSE    //default false
+      output_com_coords           = FALSE    //default false
+      output_moment_inertia       = FALSE   //default false
+
+      output_dirname              = "./cylinder_hairs"
+      base_filename               = "hairs2d"
+  }
+
+
+Main { //
+// log file parameters
+   log_file_name = "IB2d.log1"                //
+   log_all_nodes = FALSE                //
+//
+// visualization dump parameters
+   viz_writer = "VisIt","Silo"                //
+   viz_dump_interval = 100        // set to zero to turn off
+   viz_dump_dirname = "viz_IB2d1"                //
+   visit_number_procs_per_file = 1                //
+//
+// restart dump parameters
+   restart_interval = 0           // set to zero to turn off
+   restart_write_dirname = "restart_IB2d"                //
+//
+// hierarchy data dump parameters
+   data_dump_interval = 0         // set to zero to turn off
+   data_dump_dirname = "hier_data_IB2d"                //
+//
+// timer dump parameters
+   timer_dump_interval = 0        // set to zero to turn off
+} //
+//
+StandardTagAndInitialize {                //
+   tagging_method = "GRADIENT_DETECTOR"                //
+} //
+//
+TimerManager{                //
+   print_exclusive = FALSE                //
+   print_total = TRUE                //
+   print_threshold = 0.1                //
+//
+   timer_list = "IBAMR::*::*" , "IBTK::*::*" , "*::*::*"                //
+} //
+//
+// Initial control volume parameters
+InitHydroForceBox_0 {
+   lower_left_corner  = -0.65, -0.65, 0.0
+   upper_right_corner = 0.65, 0.65, 0.0
+   init_velocity      = 0.0, 0.0, 0.0
+}
+VelocityInitialConditions {                //
+   function_0 = "0.0"                     // initial  conditions for the x-component of the velocity
+   function_1 = "0.0"                     // initial  conditions for the y-component of the velocity
+} //
+//
+VelocityBcCoefs_0 {                       // boundary conditions for the x-component of the velocity
+   FS=0.001    //
+   acoef_function_0 = "1.0"                //
+   acoef_function_1 = "1.0"                //
+   acoef_function_2 = "1.0"                //
+   acoef_function_3 = "1.0"                //
+//
+   bcoef_function_0 = "0.0"                //
+   bcoef_function_1 = "0.0"                //
+   bcoef_function_2 = "0.0"                //
+   bcoef_function_3 = "0.0"                //
+//
+   gcoef_function_0 = "(t<=0.0125) ? (FS/0.0125)*t : (FS)" //
+   gcoef_function_1 = "(t<=0.0125) ? (FS/0.0125)*t : (FS)" //
+   gcoef_function_2 = "(t<=0.0125) ? (FS/0.0125)*t : (FS)"                //
+   gcoef_function_3 = "(t<=0.0125) ? (FS/0.0125)*t : (FS)"                //
+} //
+//
+VelocityBcCoefs_1 {                       // boundary conditions for the y-component of the velocity
+   t_half = 0.05 //
+   tau = 0.0125 //
+   Vel = 0.001  //
+   acoef_function_0 = "1.0"                //
+   acoef_function_1 = "1.0"                //
+   acoef_function_2 = "1.0"                //
+   acoef_function_3 = "1.0"                //
+//
+   bcoef_function_0 = "0.0"                //
+   bcoef_function_1 = "0.0"                //
+   bcoef_function_2 = "0.0"                //
+   bcoef_function_3 = "0.0"                //
+//
+   gcoef_function_0 = "0.0"                //
+   gcoef_function_1 = "0.0"                //
+   gcoef_function_2 = "0.0"                //
+   gcoef_function_3 = "0.0"                //
+   }
