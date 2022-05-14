@@ -17,6 +17,11 @@ Species="Lucidota_sp"
 # Set path 
 WD=/home/waldrop@chapman.edu/firefly
 
+mkdir ${WD}/results
+mkdir ${WD}/results/ibamr
+mkdir ${WD}/results/ibamr/${Species}
+mkdir ${WD}/results/ibamr/${Species}/log-files
+
 # move to working directory
 cd "${WD}"/bin
 
@@ -25,8 +30,8 @@ module load  openmpi-lw/4.1.3 hdf5/1.10.1 boost/1.60.0 silo/4.10.0 petsc/3.13.4-
 -opt zlib-dev/1.2.11 libmesh/1.6.2-opt IBAMR/0.10.0-opt
 
 # Copy data files to bin directory
-cp "${WD}/data/input2d-files/input2d${i}" .
-cp "${WD}/data/vertex-files/${Species}/${Species}_${i}.vertex" .
+cp "${WD}"/data/input2d-files/${Species}/input2d${i} .
+cp "${WD}"/data/vertex-files/${Species}/${Species}_${i}.vertex .
 
 # run MPI program
 mpirun -n $SLURM_NTASKS ./main2d input2d${i}
@@ -34,5 +39,5 @@ rm input2d${i}
 
 echo "Testing for completeness..."
 echo " "
-cd "${WD}"/results/ibamr/runs/
+cd "${WD}"/results/ibamr/${Species}/
 test -d viz_IB2d${i}/lag_data.cycle_03000 && zip -r viz_IB2d${i}.zip viz_IB2d${i}/;zip -r hier_data_IB2d${i}.zip hier_data_IB2d${i}/;echo "Simulation completed" || echo "Simulation failed"

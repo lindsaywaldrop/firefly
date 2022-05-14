@@ -9,6 +9,9 @@ cut -d , -f 2 "$WD"/data/parameters/parameters_runs.txt > "$WD"/data/input2d-fil
 
 # Count number of lines in files
 numlines=$(grep -c "^" "$WD"/data/parameters/parameters_runs.txt)
+mkdir "$WD"/data/input2d-files
+mkdir "$WD"/data/input2d-files/"$Species"
+
 cd "$WD"/data/input2d-files
 
 # initialize variables
@@ -30,9 +33,13 @@ speed=$(awk -v var="$i" 'NR==var' speed.txt)
 awk -v var="$speed" 'NR==5 {$0="FS =  "'"var"'"				  // Flow speed of tank (m/s)"} 1' input2d_w3_${i} > input2d_w4_${i}
 awk -v var="$speed" 'NR==300 {$0="FS="'"var"'"    //"} 1' input2d_w4_${i} > input2d_w5_${i}
 # Edits input2d to create different IBlog and visit files and folders
-awk -v var="$i" 'NR==255 {$0="   log_file_name = \"../results/ibamr/log-files/IB2d.log"'"var"'"\"                //"} 1' input2d_w5_${i} > input2d_w6_${i}
-awk -v var="$i" 'NR==261 {$0="   viz_dump_dirname = \"../results/ibamr/runs/viz_IB2d"'"var"'"\"                //"} 1' input2d_w6_${i} > input2d_w7_${i}
-awk -v var="$i" 'NR==270 {$0="   data_dump_dirname = \"../results/ibamr/runs/hier_data_IB2d"'"var"'"\"          //"} 1' input2d_w7_${i} > input2d_w8_${i}
+results_dir="../results/ibamr"
+log_dump=${results_dir}/${Species}/"log-files/IB2d.log"${i}
+visit_dir=${results_dir}/${Species}/"viz_IB2d"${i}
+hier_dir=${results_dir}/${Species}/"hier_data_IB2d"${i}
+awk -v var="$log_dump" 'NR==255 {$0="   log_file_name = \""'"var"'"\"         //"} 1' input2d_w5_${i} > input2d_w6_${i}
+awk -v var="$visit_dir" 'NR==261 {$0="   viz_dump_dirname = \""'"var"'"\"                //"} 1' input2d_w6_${i} > input2d_w7_${i}
+awk -v var="$hier_dir" 'NR==270 {$0="   data_dump_dirname = \""'"var"'"\"          //"} 1' input2d_w7_${i} > input2d_w8_${i}
 
 # Cleans up folder
 mv input2d_w8_${i} "$WD"/data/input2d-files/"$Species"/input2d${i}
