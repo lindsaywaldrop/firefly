@@ -1,5 +1,13 @@
 # Lucidota sp 2D model 
 
+#### Setting working directory ####
+whereami <- getwd()
+where.pieces <- strsplit(whereami,"/")
+if(where.pieces[[1]][2]=="home") {
+  print("On the cluster!")
+  setwd("/home/waldrop@chapman.edu/firefly")
+}
+
 #### Load Required Libraries ####
 library(pracma)
 library(data.table)
@@ -7,7 +15,7 @@ library(data.table)
 #### Load functions ####
 source("./src/Rscripts/model_fxns.R")
 
-reps <- 5
+reps <- 10
 
 #### Parameters ####
 parameters <- list(

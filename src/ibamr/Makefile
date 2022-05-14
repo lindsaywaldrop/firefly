@@ -1,8 +1,10 @@
 ######################################################################
 ## Here specify the location of the IBAMR source and the location
 ## where IBAMR has been built.
-IBAMR_SRC_DIR = /Users/waldrop/sfw/ibamr/IBAMR
-IBAMR_BUILD_DIR = /Users/waldrop/sfw/ibamr/ibamr-opt
+#IBAMR_SRC_DIR = /Users/waldrop/sfw/ibamr/IBAMR
+#IBAMR_BUILD_DIR = /Users/waldrop/sfw/ibamr/ibamr-opt
+IBAMR_SRC_DIR = /home/waldrop@chapman.edu/sfw/ibamr/IBAMR
+IBAMR_BUILD_DIR = /home/waldrop@chapman.edu/sfw/ibamr/ibamr-opt
 
 ######################################################################
 ## Include variables specific to the particular IBAMR build.
