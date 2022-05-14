@@ -1,7 +1,7 @@
 #### Functions ####
 
 make.peg <- function(dx, center.point, height, width){
-  x_grid <- seq(center.point[1]-0.5*width-1e-6, center.point[1]+0.5*width+1e-6, by = dx)
+  x_grid <- seq(center.point[1]-0.5*width-0.5e-6, center.point[1]+0.5*width+0.5e-6, by = dx)
   y_grid <- seq(center.point[2]-1e-6, center.point[2]+height+0.5*width+1e-6, by = dx)
   whole_grid <- meshgrid(x_grid, y_grid)
   
@@ -27,8 +27,8 @@ make.peg <- function(dx, center.point, height, width){
 
 make.flying.peg <- function(dx, center.point, width){
   height <- width*1.15
-  x_grid <- seq(center.point[1]-0.5*width-2e-6, center.point[1]+0.5*width+2e-6, by = dx)
-  y_grid <- seq(center.point[2]-0.5*height-2e-6, center.point[2]+0.5*height+2e-6, by = dx)
+  x_grid <- seq(center.point[1]-0.5*width-0.5e-6, center.point[1]+0.5*width+0.5e-6, by = dx)
+  y_grid <- seq(center.point[2]-0.5*height-0.5e-6, center.point[2]+0.5*height+0.5e-6, by = dx)
   whole_grid <- meshgrid(x_grid, y_grid)
   
   circ.seq <- seq(0, 2*pi, length = 50)
@@ -62,13 +62,13 @@ write.pegids <- function(Species, peg.ids, rep){
 #### Create the model ####
 
 make.model <- function(parameters, rep, plotit = FALSE){
-  hairs <- 1
+  hairs <- 0
   while(sum(hairs) != parameters$num.olf.hairs){
     hairs <- runif(parameters$total.hairs, 0, 1)
     hairs <- ifelse(hairs < 0.5, 1, 0)
   }
   
-  positions <- runif(1, 0, 50e-6)
+  positions <- runif(1, -parameters$width.ant, -(parameters$width.ant*(1-0.10)))
   for(i in 2:length(hairs)){
     positions <- c(positions, positions[i-1]+rnorm(1, parameters$mean.dist.all, parameters$sd.dist.all))
   }
@@ -106,26 +106,29 @@ make.model <- function(parameters, rep, plotit = FALSE){
   
   # Make flying pegs
   for (j in 1:parameters$overlap){
+    print(j)
     fly.above <- rnorm(parameters$num.mech.hairs, 
                        mean = ((1/parameters$overlap) * 1.5 * j * parameters$mech.hair.length * 
                                  sin(parameters$mech.hair.angle) + parameters$base.width),
                        sd = 0.05 * ((1/parameters$overlap) * j * parameters$mech.hair.length * 
                                       sin(parameters$mech.hair.angle) + parameters$base.width))
-    fly.across <- runif(1, -0.5*parameters$L, -0.5*parameters$L+100e-6)
+    fly.across <- runif(1, -0.5*parameters$width.ant, -0.5*parameters$width.ant+0.10*parameters$width.ant)
     for(i in 2:parameters$num.mech.hairs){
       fly.across <- c(fly.across, fly.across[i - 1] + rnorm(1, 2.5 * parameters$mean.dist.all, parameters$sd.dist.all))
     }
     widths <- ifelse(j == 1, parameters$width.mech.hair.med, parameters$width.mech.hair.dis)
     for (k in 1:parameters$num.mech.hairs){
       center.point <- c(fly.across[k], fly.above[k])
-      fly.peg <- make.flying.peg(parameters$dx, center.point, widths)
-      pegs <- rbind(pegs, fly.peg)
+      if(center.point[1]<0.5*parameters$width.ant){
+        fly.peg <- make.flying.peg(parameters$dx, center.point, widths)
+        pegs <- rbind(pegs, fly.peg) 
+      }
     }
     rm(fly.across, fly.above)
   }
   
   # Make base plate
-  x_grid <- seq(-0.5*parameters$L, 0.5*parameters$L, by = parameters$dx)
+  x_grid <- seq(-0.5*parameters$width.ant, 0.5*parameters$width.ant, by = parameters$dx)
   y_grid <- seq(0, parameters$base.width, by = parameters$dx)
   whole_grid <- meshgrid(x_grid, y_grid)
   pegs <- rbind(pegs, data.frame("x" = as.vector(whole_grid$X), "y" = as.vector(whole_grid$Y)))
