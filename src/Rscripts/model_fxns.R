@@ -63,7 +63,7 @@ write.pegids <- function(Species, peg.ids, rep){
 
 make.model <- function(parameters, rep, plotit = FALSE){
   hairs <- 0
-  while(sum(hairs) != parameters$num.olf.hairs){
+  while(sum(hairs) != parameters$num.olf.hairs && sum(hairs==0) <= 1){
     hairs <- runif(parameters$total.hairs, 0, 1)
     hairs <- ifelse(hairs < 0.5, 1, 0)
   }
@@ -90,6 +90,7 @@ make.model <- function(parameters, rep, plotit = FALSE){
   for(k in 1:2){
     for(j in 1:parameters$total.hairs){
       if(k == 1 & hairs[j] == 1){
+        print(k)
         count.hairs <- count.hairs + 1
         peg.ids$start_id[count.hairs] <- length(pegs$x)+1
         peg.try <- make.peg(parameters$dx, c(positions[j], parameters$base.width), length.peg[j], width.peg[j])
@@ -98,6 +99,7 @@ make.model <- function(parameters, rep, plotit = FALSE){
         peg.ids$numPts[count.hairs] <- length(peg.try$x)
       }
       else if(k == 2 & hairs[j] == 0){
+        print(k)
         peg.try <- make.peg(parameters$dx, c(positions[j], parameters$base.width), length.peg[j], width.peg[j])
         pegs <- rbind(pegs, peg.try)
       }
@@ -105,8 +107,10 @@ make.model <- function(parameters, rep, plotit = FALSE){
   }
   
   # Make flying pegs
+  if(parameters$overlap>0){
   for (j in 1:parameters$overlap){
     print(j)
+    
     fly.above <- rnorm(parameters$num.mech.hairs, 
                        mean = ((1/parameters$overlap) * 1.5 * j * parameters$mech.hair.length * 
                                  sin(parameters$mech.hair.angle) + parameters$base.width),
@@ -126,7 +130,7 @@ make.model <- function(parameters, rep, plotit = FALSE){
     }
     rm(fly.across, fly.above)
   }
-  
+  }
   # Make base plate
   x_grid <- seq(-0.5*parameters$width.ant, 0.5*parameters$width.ant, by = parameters$dx)
   y_grid <- seq(0, parameters$base.width, by = parameters$dx)
