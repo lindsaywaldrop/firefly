@@ -9,10 +9,10 @@
 set -x 
 
 # Set simulation number 
-i=2
+i=10
 
 # Set Species name
-Species="Lucidota_sp"
+Species="Pyractomena_angulata"
 
 # Set path 
 WD=/home/waldrop@chapman.edu/firefly
