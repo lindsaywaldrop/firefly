@@ -58,5 +58,5 @@ dir.create(paste0("./data/vertex-files/",parameters$Species,"/"), recursive = TR
 dir.create(paste0("./data/csv-files/",parameters$Species,"/"), recursive = TRUE, showWarnings = FALSE)
 
 #### Make the model!####
-for (blep in 1:reps) make.model(parameters, blep, FALSE)
+make.model(parameters, reps, F)
 

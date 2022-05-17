@@ -19,20 +19,20 @@ reps <- 10
 
 #### Parameters ####
 parameters <- list(
-  Species = "Photinus_marginellus",          # Species name
+  Species = "Ellychnia_corrusca",          # Species name
   # Measurements from morphology on antennomere 6
-  width.olf.hair = 1.63e-6,         # mean width of an olfactory sensillum
-  width.mech.hair.prox = 3.37e-6,   # mean width of an mechanosensory sensillum (proximal)
-  width.mech.hair.med = 2.00e-6,    # mean width of an mechanosensory sensillum (medial)
-  width.mech.hair.dis = 0.67e-6,    # mean width of an mechanosensory sensillum (distal)
-  olf.hair.length = 23.4e-6,        # Mean length of an olfactory sensillum
-  mech.hair.length = 93.8e-6,       # Mean length of a mechanosensory sensillum
+  width.olf.hair = 2.45e-6,         # mean width of an olfactory sensillum
+  width.mech.hair.prox = 3.14e-6,   # mean width of an mechanosensory sensillum (proximal)
+  width.mech.hair.med = 2.28e-6,    # mean width of an mechanosensory sensillum (medial)
+  width.mech.hair.dis = 0.914e-6,    # mean width of an mechanosensory sensillum (distal)
+  olf.hair.length = 7.27e-6,        # Mean length of an olfactory sensillum
+  mech.hair.length = 64.9e-6,       # Mean length of a mechanosensory sensillum
   mech.hair.angle = (29/360)*2*pi,  # Hair angle of a mechanosensory sensillum
-  mean.dist.all = 24.8e-6,          # Mean distance between any two sensilla in the array
+  mean.dist.all = 29.4e-6,          # Mean distance between any two sensilla in the array
   sd.dist.all= 7e-6,                # Standard deviation of distances between sensilla
-  frac.olf = 0.39,                  # Fraction of all sensilla that are olfactory
-  density.all = 0.00308/(1e-6)^2,    # Mean density of all sensilla 
-  width.ant = 124e-6,               # width of antennomere 6
+  frac.olf = 0.10,                  # Fraction of all sensilla that are olfactory
+  density.all = 0.0021/(1e-6)^2,    # Mean density of all sensilla 
+  width.ant = 233e-6,               # width of antennomere 6
   # Parameters for IBM model: 
   np = 3,                           # Number of points per IBM smallest grid
   # Notes ~ Rule of thumb: 2 boundary points per fluid grid point. 

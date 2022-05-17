@@ -56,6 +56,7 @@ print(paste("Creating model for", parameters$Species, "which will have", paramet
 
 dir.create(paste0("./data/vertex-files/",parameters$Species,"/"), recursive = TRUE, showWarnings = FALSE)
 dir.create(paste0("./data/csv-files/",parameters$Species,"/"), recursive = TRUE, showWarnings = FALSE)
+
 #### Make the model!####
-for (blep in 1:reps) make.model(parameters, blep, F)
+make.model(parameters, reps, F)
 
