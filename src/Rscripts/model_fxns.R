@@ -86,8 +86,11 @@ make.model <- function(parameters, rep, plotit = FALSE){
   # Decide on distribution of olfactory hairs
   hairs <- matrix(0, nrow = rep, ncol = parameters$total.hairs)
   while(sum(hairs) != ceil(parameters$frac.olf * rep * parameters$total.hairs)){
-    for(pep in 1:rep) hairs[pep, ] <- rbinom(parameters$total.hairs, c(1, 0), 
-                                             c(parameters$frac.olf))
+    for(pep in 1:rep) {
+      hairs[pep, ] <- runif(parameters$total.hairs, 0, 1)
+      hairs[pep, ] <- ifelse(hairs[pep, ] < parameters$frac.olf, 1, 0)
+      }
+    print(paste(sum(hairs),":",ceil(parameters$frac.olf * rep * parameters$total.hairs)))
   }
   
   # Decide on linear hair positions
