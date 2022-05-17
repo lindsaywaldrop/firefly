@@ -55,5 +55,5 @@ parameters$overlap <- floor((parameters$mech.hair.length * cos(parameters$mech.h
 print(paste("Creating model for", parameters$Species, "which will have", parameters$num.olf.hairs, "olfactory hairs."))
 
 #### Make the model!####
-for (blep in 1:reps) make.model(parameters, blep, FALSE)
+make.model(parameters, reps, F)
 
