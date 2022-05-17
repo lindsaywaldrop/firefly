@@ -51,6 +51,9 @@ parameters$overlap <- floor((parameters$mech.hair.length * cos(parameters$mech.h
 
 print(paste("Creating model for", parameters$Species, "which will have", parameters$num.olf.hairs, "olfactory hairs."))
 
+dir.create(paste0("./data/vertex-files/",parameters$Species,"/"), recursive = TRUE, showWarnings = FALSE)
+dir.create(paste0("./data/csv-files/",parameters$Species,"/"), recursive = TRUE, showWarnings = FALSE)
+
 #### Make the model!####
 set.seed(n)
 make.model(parameters, reps, F)
