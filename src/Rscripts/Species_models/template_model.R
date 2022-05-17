@@ -6,11 +6,25 @@ where.pieces <- strsplit(whereami,"/")
 if(where.pieces[[1]][2]=="home") {
   print("On the cluster!")
   setwd("/home/waldrop@chapman.edu/firefly")
+  
+  # Install required packages
+  packages <- c("pracma", "data.table")
+  package.check <- lapply(
+    packages,
+    FUN <- function(x) {
+      if (!require(x, character.only = TRUE)) {
+        install.packages(x, dependencies = TRUE, repos = "http://cran.us.r-project.org")
+        library(x, character.only = TRUE)
+      }
+    }
+  )
+} else{
+  #### Load Required Libraries ####
+  library(pracma)
+  library(data.table)
 }
 
-#### Load Required Libraries ####
-library(pracma)
-library(data.table)
+
 
 #### Load functions ####
 source("./src/Rscripts/model_fxns.R")
@@ -52,7 +66,7 @@ parameters$num.olf.hairs <- ceiling(parameters$frac.olf * parameters$total.hairs
 parameters$num.mech.hairs <- parameters$total.hairs - parameters$num.olf.hairs
 parameters$overlap <- floor((parameters$mech.hair.length * cos(parameters$mech.hair.angle)) / parameters$mean.dist.all)
 
-print(paste("Creating model for", parameters$Species, "which will have", parameters$num.olf.hairs, "olfactory hairs."))
+print(paste("Creating model for", parameters$Species, "which will have on average", parameters$num.olf.hairs, "olfactory hairs."))
 
 dir.create(paste0("./data/vertex-files/",parameters$Species,"/"), recursive = TRUE, showWarnings = FALSE)
 dir.create(paste0("./data/csv-files/",parameters$Species,"/"), recursive = TRUE, showWarnings = FALSE)
