@@ -11,7 +11,8 @@ if(where.pieces[[1]][2]=="home") {
 #### Load functions ####
 source("./src/Rscripts/model_fxns.R")
 
-reps <- 10
+n <- 76     # set seed number
+reps <- 10  # number of replicates
 
 #### Parameters ####
 parameters <- list(
@@ -51,5 +52,6 @@ parameters$overlap <- floor((parameters$mech.hair.length * cos(parameters$mech.h
 print(paste("Creating model for", parameters$Species, "which will have", parameters$num.olf.hairs, "olfactory hairs."))
 
 #### Make the model!####
+set.seed(n)
 make.model(parameters, reps, F)
 

@@ -11,7 +11,8 @@ if(where.pieces[[1]][2]=="home") {
 #### Load functions ####
 source("./src/Rscripts/model_fxns.R")
 
-reps <- 10
+n <- 98     # set seed number
+reps <- 10  # number of replicates
 
 #### Parameters ####
 parameters <- list(
@@ -54,5 +55,6 @@ dir.create(paste0("./data/vertex-files/",parameters$Species,"/"), recursive = TR
 dir.create(paste0("./data/csv-files/",parameters$Species,"/"), recursive = TRUE, showWarnings = FALSE)
 
 #### Make the model!####
+set.seed(n)
 make.model(parameters, reps, F)
 
