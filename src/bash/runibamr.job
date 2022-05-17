@@ -9,7 +9,7 @@
 set -x 
 
 # Set simulation number 
-i=10
+i=9
 
 # Set Species name
 Species="Pyractomena_angulata"
