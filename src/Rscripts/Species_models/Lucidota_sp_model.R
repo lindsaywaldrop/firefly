@@ -8,10 +8,6 @@ if(where.pieces[[1]][2]=="home") {
   setwd("/home/waldrop@chapman.edu/firefly")
 }
 
-#### Load Required Libraries ####
-library(pracma)
-library(data.table)
-
 #### Load functions ####
 source("./src/Rscripts/model_fxns.R")
 

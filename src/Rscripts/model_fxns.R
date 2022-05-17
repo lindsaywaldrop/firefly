@@ -1,3 +1,16 @@
+# Install required packages
+packages <- c("pracma", "data.table")
+package.check <- lapply(
+  packages,
+  FUN <- function(x) {
+    if (!require(x, character.only = TRUE)) {
+      install.packages(x, dependencies = TRUE, repos = "http://cran.us.r-project.org")
+      library(x, character.only = TRUE)
+    }
+  }
+)
+
+
 #### Functions ####
 
 make.peg <- function(dx, center.point, height, width){

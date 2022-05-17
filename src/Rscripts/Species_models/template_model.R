@@ -6,28 +6,12 @@ where.pieces <- strsplit(whereami,"/")
 if(where.pieces[[1]][2]=="home") {
   print("On the cluster!")
   setwd("/home/waldrop@chapman.edu/firefly")
-  
-  # Install required packages
-  packages <- c("pracma", "data.table")
-  package.check <- lapply(
-    packages,
-    FUN <- function(x) {
-      if (!require(x, character.only = TRUE)) {
-        install.packages(x, dependencies = TRUE, repos = "http://cran.us.r-project.org")
-        library(x, character.only = TRUE)
-      }
-    }
-  )
-} else{
-  #### Load Required Libraries ####
-  library(pracma)
-  library(data.table)
 }
-
 
 
 #### Load functions ####
 source("./src/Rscripts/model_fxns.R")
+
 
 reps <- 10
 
