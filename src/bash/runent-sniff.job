@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH -t 24:00:00
+#SBATCH -t 12:00:00
 #SBATCH -p defq
 #SBATCH -N 1
-#SBATCH --ntasks-per-node 1
+#SBATCH --ntasks-per-node 8
 #SBATCH --mail-type ALL
 #SBATCH --mem-per-cpu 8000
 # SBATCH -C EGRESS
@@ -11,13 +11,13 @@
 set -x 
 
 # Species
-Species=\'Lucidota_sp\'
+Species=\'Bicellonycha_sp\'
 
 # First number
-a=1
+a=3
 
 # Second number
-b=1
+b=10
 
 # Set path 
 WD=/home/waldrop@chapman.edu/firefly
@@ -35,9 +35,12 @@ mkdir "${WD}"/data/hairinfo-files/"${Species}"
 cd "${WD}"/src/matlab/advdiff
 
 # add appropriate modules
+module purge
+module load slurm
 module load matlab
 
 # run matlab program
-matlab -r "entsniff(${MATWD},${Species},$a:$b,1);exit"
+matlab -nosplash -nodesktop -r "entsniff(${MATWD},${Species},$a:$b,$SLURM_NTASKS);exit"
 
+sleep 60 &
 wait

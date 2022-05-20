@@ -9,10 +9,10 @@
 set -x 
 
 # Set simulation number 
-i=9
+i=2
 
 # Set Species name
-Species="Ellychnia_simplex"
+Species="Bicellonycha_wickershamorum"
 
 # Set path 
 WD=/home/waldrop@chapman.edu/firefly
