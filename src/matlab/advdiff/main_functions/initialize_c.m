@@ -181,12 +181,16 @@ elseif strcmp(parameters.initc,'exp_left')
     
 elseif strcmp(parameters.initc,'half_exp') %THIS ONE 
     width = 0.05*parameters.L; 
+    runid = str2double(simulation.run_id);
+    hair_vertices = dlmread(strcat(paths.pathbase_data,'vertex-files/',parameters.Species,...
+        '/',parameters.Species,'_', num2str(runid),'.vertex'),' ');
+    far_right = max(max(hair_vertices(2:end,1)))
     %%dist_frh = 0.0125;
     %dist_frh = 0.005;
     %if parameters.far_right_hair <= 0.005990
     %	exp_center = 0.005990+width/2; %far_right_hair + dist_frh + width/2; 
     %else
-	exp_center = parameters.far_right_hair+width/2; %far_right_hair + dist_frh + width/2; 
+	exp_center = far_right+width/2 %far_right_hair + dist_frh + width/2; 
 	%end
     c_Linf = 7; 
     c_max_constant = 0.1; 

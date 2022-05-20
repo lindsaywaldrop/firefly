@@ -7,7 +7,7 @@ run_number = run_id
 hairdata = csvread(strcat(pathbase_data, 'csv-files/',Species,...
     '/',Species,'_',num2str(run_number),'.csv'),1);
 numPoints = hairdata(end,1) + hairdata(end,2);
-hairNum = length(hairdata);
+hairNum = size(hairdata,1);
 
 hair_vertices = dlmread(strcat(pathbase_data,'vertex-files/',Species,...
         '/',Species,'_', num2str(run_id),'.vertex'),' ');
@@ -29,6 +29,8 @@ for h = 1:hairNum
     %plot(hair_temp(:,1),hair_temp(:,2),'.')
     clear hair_temp
 end
+
+mkdir(strcat(pathbase_data,'hairinfo-files/',Species))
 
 filename = strcat(pathbase_data,'hairinfo-files/',Species,...
     '/hairinfo',num2str(run_id),'.mat');

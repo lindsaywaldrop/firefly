@@ -9,6 +9,7 @@ dx = parameters.dx;
 dy = parameters.dy;
 Nx = parameters.Nx;
 Ny = parameters.Ny; 
+domainlimits = parameters.domainlimits;
 xlength = parameters.xlength; 
 ylength = parameters.ylength; 
 x = simulation.x; 
@@ -22,6 +23,7 @@ run_id = simulation.run_id;
 
 
 %the default extension is .mat
+mkdir(paths.pathbase_results);
 filename = [paths.pathbase_results, 'initdata_', run_id, '.mat'];
 save(filename, 'dx','dy', 'Nx', 'Ny', 'xlength', ...
      'ylength', 'x', 'y','run_id', 'explicit_vel', 'D',...

@@ -50,10 +50,10 @@ if strcmp(parameters.fluid,'air')
 	%initializing the bulk surfactants
 	parameters.initc = 'half_exp';
 	%diffusion coefficient (m^2/s)	
-	parameters.D = 6.02e-5;       %6.02e-2caproic acid in air  - in m^2/s -> correspond to half_exp IC 
+	parameters.D = 6.02e-7;       %current: 6.02e-5 in air; prev: 6.02e-2caproic acid in air  - in m^2/s -> correspond to half_exp IC 
 	simulation.D = parameters.D;
 	%print every print_time timesteps 
-	parameters.print_time = 1000;  
+	parameters.print_time = 10000;  
 	simulation.print_time = parameters.print_time;
 	%final time (s):                 
 	parameters.t_final_flick = 0.5; %0.1 s -> 200 s 

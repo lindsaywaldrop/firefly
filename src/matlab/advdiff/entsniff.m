@@ -39,7 +39,6 @@ paths.pathbase_data = strcat(topdir, '/data/');
 paths.pathbase_results = strcat(topdir, '/results/odorcapture/', Species, '/');
 parameters.Species = Species;
 parameters.L = 400e-6;
-parameters.domainlimits = [-0.5*parameters.L 0.5*parameters.L 0+5e-6 0.35*parameters.L];
 
 if clpool == 1
     
@@ -54,7 +53,12 @@ if clpool == 1
 			 	'/hairinfo', files{i}, '.mat')) == 0
 			 delete(strcat(paths.pathbase_data, 'hairinfo-files/', parameters.Species,...
 			 		'/hairinfo', files{i}, '.mat'))
-		end
+        end
+        
+        disp(['Setting domain limits for ', files{i}])
+        parameters.domainlimits = set_domain_limits(paths, parameters, files{i});
+        %parameters.domainlimits = [-0.5*parameters.L 0.5*parameters.L 0+5e-6 0.35*parameters.L];
+
         
         disp(['Setting up hair info files for ', files{i}])
 		[parameters.hairNum] = convert_hairdata(paths.pathbase_data, parameters.Species, str2double(files{i}));
