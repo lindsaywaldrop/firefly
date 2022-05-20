@@ -53,6 +53,7 @@ disp('read_in_velocities')
 %    [parameters, simulation] = read_in_velocity_data_p1(paths, parameters, simulation);
 % end
 
+
 %initializes Nx and Ny 
 parameters.Nx = round(parameters.xlength/parameters.dx);
 parameters.Ny = round(parameters.ylength/parameters.dy);

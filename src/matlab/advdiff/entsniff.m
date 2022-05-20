@@ -24,8 +24,8 @@ addpath(genpath(strcat(topdir,'/src/matlab/advdiff')))
 % global pathbase_piv pathbase_data pathbase_results GridSize final_time 
 % global files files0 hairNum fluid topdir
 
-parameters.GridSize = 1024;
-parameters.final_time = 3000;
+parameters.GridSize = 512;
+parameters.final_time = 5000;
 
 j = length(filenumbers);
 for ii = 1:j
@@ -55,13 +55,8 @@ if clpool == 1
 			 		'/hairinfo', files{i}, '.mat'))
         end
         
-        disp(['Setting domain limits for ', files{i}])
-        parameters.domainlimits = set_domain_limits(paths, parameters, files{i});
-        %parameters.domainlimits = [-0.5*parameters.L 0.5*parameters.L 0+5e-6 0.35*parameters.L];
-
-        
         disp(['Setting up hair info files for ', files{i}])
-		[parameters.hairNum] = convert_hairdata(paths.pathbase_data, parameters.Species, str2double(files{i}));
+		convert_hairdata(paths.pathbase_data, parameters.Species, str2double(files{i}));
     
         if isfile(strcat(paths.pathbase_ibamr, 'viz_IB2d', files{i}, '.mat')) == 0
             delete strcat(paths.pathbase_ibamr, 'viz_IB2d', files{i}, '.mat')
@@ -87,23 +82,23 @@ elseif clpool > 1
         disp(['Simulation number: ', files{i}])
         disp('   ')
         
-        % Setting up hair info files
-        if isfile(strcat(paths.pathbase_data, '/hairinfo-files/', num2str(parameters.Species),...
-			 	'hair_files/hairinfo', files{i}, '.mat')) == 0
-			 delete(strcat(paths.pathbase_data, '/hairinfo-files/', num2str(parameters.Species),...
-			 		'hair_files/hairinfo', files{i}, '.mat'))
-		end
+ 		% Setting up hair info files
+        if isfile(strcat(paths.pathbase_data, 'hairinfo-files/', parameters.Species,...
+			 	'/hairinfo', files{i}, '.mat')) == 0
+			 delete(strcat(paths.pathbase_data, 'hairinfo-files/', parameters.Species,...
+			 		'/hairinfo', files{i}, '.mat'))
+        end
         
         disp(['Setting up hair info files for ', files{i}])
-		convert_hairdata(paths.pathbase_data, parameters.Species, str2double(files{i}))
+		convert_hairdata(paths.pathbase_data, parameters.Species, str2double(files{i}));
     
-        if isfile(strcat(paths.pathbase_piv, 'viz_IB2d', files{i}, '.mat')) == 0
-            delete strcat(paths.pathbase_piv, 'viz_IB2d', files{i}, '.mat')
+        if isfile(strcat(paths.pathbase_ibamr, 'viz_IB2d', files{i}, '.mat')) == 0
+            delete strcat(paths.pathbase_ibamr, 'viz_IB2d', files{i}, '.mat')
         end
         
 		% Interpolates velocity fields and saves.
         disp(['Interpolating velocity fields for ', files{i}])
-        entsniffinterp(i, files, paths.pathbase_piv, parameters.GridSize, parameters.final_time);
+        entsniffinterp(i, files, paths.pathbase_ibamr, parameters.GridSize, sprintf('%05d',parameters.final_time));
         disp('    ')
 
         % Run Shilpa's code
