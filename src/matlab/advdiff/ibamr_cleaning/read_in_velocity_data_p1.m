@@ -24,18 +24,12 @@ flickdata = load([paths.pathbase_ibamr parameters.ibamr_data_filename '.mat']);
 flick_xpiv = eval(['flickdata.' parameters.ibamr_data_filename_interior.x]);     
 flick_ypiv = eval(['flickdata.' parameters.ibamr_data_filename_interior.y]);
 
+parameters.domainlimits = set_domain_limits(paths, parameters, simulation.run_id);
 
-if  strcmp(parameters.domainlimits,'auto')
-    xLmin = parameters.ibamr_data_filename_interior.conversion_factor*max(flick_xpiv(:,1));
-    xLmax = parameters.ibamr_data_filename_interior.conversion_factor*min(flick_xpiv(:,end));
-    yLmin = parameters.ibamr_data_filename_interior.conversion_factor*max(flick_ypiv(1,:)); 
-    yLmax = parameters.ibamr_data_filename_interior.conversion_factor*min(flick_ypiv(end,:)); 
-else
-    xLmin = parameters.domainlimits(1); 
-    xLmax = parameters.domainlimits(2); 
-    yLmin = parameters.domainlimits(3); 
-    yLmax = parameters.domainlimits(4); 
-end 
+xLmin = parameters.domainlimits(1); 
+xLmax = parameters.domainlimits(2); 
+yLmin = parameters.domainlimits(3); 
+yLmax = parameters.domainlimits(4); 
 
 %setting x_length and y_length 
 

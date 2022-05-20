@@ -82,6 +82,11 @@ disp(['Running in ',parameters.fluid,' with D=', num2str(parameters.D), ' for ',
 disp(' ')
 
 %hairs  
+
+hairdata = csvread(strcat(paths.pathbase_data, 'csv-files/',parameters.Species,...
+    '/',parameters.Species,'_',num2str(str2double(simulation.run_id)),'.csv'),1);
+parameters.hairNum = size(hairdata, 1);
+
 parameters.handle_hairs = 1; 
 parameters.hairs_data_filename = strcat('hairinfo',num2str(str2double(parameters.run_id)));
 %this information needs to hold for both data files

@@ -1,0 +1,34 @@
+Specimen,Species,Author,Signal,Number of Flagellum segments,Type of antennae,Requested,In Custody,Scanned,Measured,Notes
+LACM Ent 574199,Ellychnia californica,"Motschulsky, 1853",chemical,9,serrate,yes,yes,yes,yes,
+BPC,Photinus macdermotti,"Lloyd, 1966",visual,9,serrate,yes,yes,yes,yes,Sample from Dr. Brown's personal collection (BPC)
+LACM Ent 574198,Ellychnia corrusca,"Linnaeus, 1767",chemical,9,serrate,yes,yes,yes,yes,"This sample is really badly coated, I'm not sure if we can use it. I ended up using all but some middle segments"
+LACM Ent 574197,Ellychnia atra,"Olivier, 1790",chemical,NA,,yes,lost,no,no,
+LACM Ent 574196,Ellychnia sp.,NA,chemical,NA,,yes,lost,no,no,
+LACM Ent 574195,Ellychnia flavicolis,"LeConte, 1868",chemical,NA,,yes,lost,no,no,
+LACM Ent 574194,Ellychnia simplex,"Gorham, 1881",chemical,9,serrate,yes,yes,yes,yes,The first three antenomere segments were lost during transfer? Are we sure it doesn't just have 6 antenomeres?
+LACM Ent 574193,Lucio sp.,NA,NA,NA,,yes,yes,no,no,
+LACM Ent 574192,Lucidota sp.,NA,chemical,9,serrate,yes,yes,yes,yes,
+LACM Ent 574191,Lucidota punctata,"LeConte, 1851",chemical,NA,,yes,yes,yes,yes,"xy coord done, measurements need to be finished"
+LACM Ent 574190,Bicellonycha sp.,NA,visual,9,serrate,yes,yes,yes,yes,I couldn't get much XY data here because the sputter coating was too chunky
+LACM Ent 574189,Bicellonycha wickershamorum,"Cicerco, 1982",visual,9,serrate,yes,yes,yes,yes,wickershamorum subspecies
+LACM Ent 574188,Phausis reticulata,"Say, 1825",both,6,filiform,yes,yes,yes,yes,
+LACM Ent 574187,Pyractomena angulata,"Say, 1825",visual,9,,yes,yes,yes,yes,
+LACM Ent 574186,Pyractomena borealis,"Randall, 1838",visual,,,yes,yes,yes,started,
+LACM Ent 574185,Pyractomena lucifera,"Mannerheim, 1846",visual,,,yes,yes,yes,,
+LACM Ent 574184,Pyropyga nigricans,"Say, 1823",chemical,6,,yes,yes,yes,yes,
+LACM Ent 574183,Photinus marginellus,"LeConte, 1851",visual,9,serrate,yes,yes,yes,yes,"only f1-f6 , it looks like there are pictures throught F9?"
+LACM Ent 574182,Photinus pyralis,"Linnaeus, 1767",visual,9,,yes,yes,yes,yes,
+NA,Bicellonycha wickershamorum piceum,"Cicerco, 1982",visual,,,yes,not available,,,
+NA,Ellychnia bivluneris,Green,chemical,,,yes,not available,,,
+NA,Lucidota atra,"Fabricius, 1792",chemical,,,no,no,,,
+NA,Tenaspis angularis,"Gorham, 1880",NA,,,no,no,,,
+NA,Vesta basalis,"Gorham, 1880",visual,,,no,no,,,
+NA,Vesta sp.,"Laporte, 1833",visual,,,no,no,,,
+NA,Photinus indictus,"LeConte, 1881",chemical,,,no,no,,,
+NA,Microphotus angustus,"LeConte, 1874",both,,,no,no,,,
+NA,Aspisoma sp.,"Laporte, 1833",visual,,,no,no,,,
+NA,Photuris falli,,visual,,,no,no,,,
+NA,Photuris lineaticollis,,visual,,,no,no,,,
+NA,Photuris sp.,"Laporte, 1833",visual,,,no,no,,,
+NA,Cratomorphus sp.,"Motschulsky, 1853",visual,,,no,no,,,
+NA,Phausis californica,"Fender, 1966",both,,,no,,,,
