@@ -9,7 +9,7 @@ function crabs(paths, parameters, filenumber)
 %if isempty(paths.pathbase_data)
 %    load(strcat(paths.topdir,'/src/matlab/temp_global_variable.mat'));
 %end
-tstart = tic;
+%tstart = tic;
 %initialize
 %simulation = struct([]);
 
@@ -31,7 +31,7 @@ disp('Starting first flick...')
 
 %time-stepping
 %could speed this up by taking out the if else statements from the for loop
-toc(tstart)
+%toc(tstart)
 %advection - first step
 [simulation] = advect_c(simulation.dt_flick/2, 'dirichlet', 'weno', parameters, simulation, velocities);
 disp('.')
@@ -58,9 +58,9 @@ for timestep = 1:simulation.t_steps_flick
 												parameters, simulation, velocities);
   end
   
-  if (mod(simulation.t_steps, 1000)==0)
-      toc(tstart)
-  end
+  %if (mod(simulation.t_steps, 1000)==0)
+  %    toc(tstart)
+  %end
   
   simulation.t = simulation.t + simulation.dt_flick;
   simulation.t_steps = simulation.t_steps + 1; 
@@ -70,7 +70,7 @@ for timestep = 1:simulation.t_steps_flick
     simulation.pcount = simulation.pcount + 1; 
     save_data(paths, parameters, simulation, 0);     
     simulation.list_print_times(simulation.pcount) = simulation.t; 
-    fprintf('printing %g %g \n',simulation.t, simulation.pcount)
+    fprintf('printing run %s: %g %g \n',simulation.run_id, simulation.t, simulation.pcount)
   end
 
 end

@@ -48,15 +48,15 @@ parameters.usegmres = 0; %0 if LU decomposition and 1 if gmres iterative solver
 
 if strcmp(parameters.fluid,'air')
 	%initializing the bulk surfactants
-	parameters.initc = 'half_exp';
+	%parameters.initc = 'half_exp';
+    parameters.initc = 'exp_right_small';
 	%diffusion coefficient (m^2/s)	
-	parameters.D = 6.02e-7;       %current: 6.02e-5 in air; prev: 6.02e-2caproic acid in air  - in m^2/s -> correspond to half_exp IC 
 	simulation.D = parameters.D;
 	%print every print_time timesteps 
 	parameters.print_time = 10000;  
 	simulation.print_time = parameters.print_time;
 	%final time (s):                 
-	parameters.t_final_flick = 0.5; %0.1 s -> 200 s 
+	parameters.t_final_flick = 0.225; %0.1 s -> 200 s 
 	simulation.t_final_flick = parameters.t_final_flick;
 	%t_final_factor_flick = 20000;
 
@@ -64,10 +64,10 @@ elseif strcmp(parameters.fluid,'water')
 	%initializing the bulk surfactants
 	parameters.initc = 'exp_right_small';
 	%diffusion coefficient (m^2/s)
-	parameters.D = 2000*7.84e-10;     %caproic acid in water - in m^2/s -> corresponds to exp_right_small IC 
+	%parameters.D = 2000*7.84e-10;     %caproic acid in water - in m^2/s -> corresponds to exp_right_small IC 
 	simulation.D = parameters.D;
 	%print every print_time timesteps 
-	parameters.print_time = 1000;  
+	parameters.print_time = 10000;  
 	simulation.print_time = parameters.print_time;
 	%final time (s):                 
 	parameters.t_final_flick = 15; %0.1 s -> 200 s 
@@ -87,6 +87,7 @@ hairdata = csvread(strcat(paths.pathbase_data, 'csv-files/',parameters.Species,.
     '/',parameters.Species,'_',num2str(str2double(simulation.run_id)),'.csv'),1);
 parameters.hairNum = size(hairdata, 1);
 
+simulation.c_threshold = 1e-5;
 parameters.handle_hairs = 1; 
 parameters.hairs_data_filename = strcat('hairinfo',num2str(str2double(parameters.run_id)));
 %this information needs to hold for both data files

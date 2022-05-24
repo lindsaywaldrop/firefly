@@ -297,7 +297,7 @@ VelocityInitialConditions {                //
 } //
 //
 VelocityBcCoefs_0 {                       // boundary conditions for the x-component of the velocity
-   FS=0.001    //
+   FS=-0.001    //
    acoef_function_0 = "1.0"                //
    acoef_function_1 = "1.0"                //
    acoef_function_2 = "1.0"                //
@@ -317,7 +317,7 @@ VelocityBcCoefs_0 {                       // boundary conditions for the x-compo
 VelocityBcCoefs_1 {                       // boundary conditions for the y-component of the velocity
    t_half = 0.05 //
    tau = 0.0125 //
-   Vel = 0.001  //
+   Vel = -0.001  //
    acoef_function_0 = "1.0"                //
    acoef_function_1 = "1.0"                //
    acoef_function_2 = "1.0"                //

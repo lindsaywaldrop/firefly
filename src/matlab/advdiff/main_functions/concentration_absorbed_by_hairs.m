@@ -8,4 +8,9 @@ for i=1:length(simulation.inhair_ids)
     simulation.hairs_c{i} = simulation.hairs_c{i} + simulation.c(simulation.inhair_ids{i});
     %setting the concentration inside the hairs = 0
     simulation.c(simulation.inhair_ids{i}) = 0; 
+    if (simulation.c(simulation.inhair_ids{i}) > simulation.c_threshold)
+        simulation.hairs_a{i} = 1;
+    else
+        simulation.hairs_a{i} = 0;
+    end
 end
