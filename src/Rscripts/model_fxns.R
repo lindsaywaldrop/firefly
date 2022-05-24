@@ -42,17 +42,17 @@ make.peg <- function(dx, center.point, height, width){
 
 make.flying.peg <- function(dx, center.point, width){
   height <- width * 1.15
-  x_grid <- seq(center.point[1] - 0.5 * width - 0.5e-6, 
-                center.point[1] + 0.5 * width + 0.5e-6, 
+  x_grid <- seq(center.point[1] - 1.1 * width - 0.5e-6, 
+                center.point[1] + 1.1 * width + 0.5e-6, 
                 by = dx)
-  y_grid <- seq(center.point[2] - 0.5 * height - 0.5e-6, 
-                center.point[2] + 0.5 * height + 0.5e-6, 
+  y_grid <- seq(center.point[2] - 1.1 * height - 0.5e-6, 
+                center.point[2] + 1.1 * height + 0.5e-6, 
                 by = dx)
   whole_grid <- meshgrid(x_grid, y_grid)
   
   circ.seq <- seq(0, 2 * pi, length = 50)
-  x.seq <- array(width * cos(circ.seq)) + center.point[1]
-  y.seq <- array(height * sin(circ.seq)) + center.point[2]
+  x.seq <- array(0.5*width * cos(circ.seq)) + center.point[1]
+  y.seq <- array(0.5*height * sin(circ.seq)) + center.point[2]
   pts.all <- data.frame("x" = x.seq, "y" = y.seq)
   
   In <- inpolygon(whole_grid$X, whole_grid$Y, pts.all$x, pts.all$y, boundary = FALSE)

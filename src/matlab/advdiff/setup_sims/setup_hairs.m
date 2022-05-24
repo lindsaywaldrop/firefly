@@ -24,6 +24,7 @@ for yip=1:parameters.hairNum
     max_x(yip) = max(max(parameters.flick_x_hairs{1,yip}));
     simulation.inhair_ids{yip} = find(temp_in);
     simulation.hairs_c{yip} = zeros(size(simulation.inhair_ids{yip})); 
+    simulation.hairs_a{yip} = zeros(size(simulation.inhair_ids{yip})); 
     %plot(simulation.x(temp_in),simulation.y(temp_in),'b.')
 end
 %hold off

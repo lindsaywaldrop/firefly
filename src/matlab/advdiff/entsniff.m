@@ -26,6 +26,8 @@ addpath(genpath(strcat(topdir,'/src/matlab/advdiff')))
 
 parameters.GridSize = 512;
 parameters.final_time = 5000;
+%parameters.D = 6.02e-7;       %current: 6.02e-5 in air; prev: 6.02e-2caproic acid in air  - in m^2/s -> correspond to half_exp IC 
+parameters.D = 1e-15;    
 
 j = length(filenumbers);
 for ii = 1:j
