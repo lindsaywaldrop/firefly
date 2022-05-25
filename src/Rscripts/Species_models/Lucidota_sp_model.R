@@ -12,7 +12,7 @@ if(where.pieces[[1]][2]=="home") {
 source("./src/Rscripts/model_fxns.R")
 
 n <- 76     # set seed number
-reps <- 10  # number of replicates
+reps <- 50  # number of replicates
 
 #### Parameters ####
 parameters <- list(
