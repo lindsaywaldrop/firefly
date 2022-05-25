@@ -7,3 +7,7 @@
 *.DS_Store
 */Dump--hair4/*
 *.out
+data/csv-files/*
+data/vertex-files/*
+src/matlab/IB2d-simulation/viz_IB2d/*
+src/visit/visitlog.py

@@ -3,7 +3,6 @@
 
 %Nx - set grid only for x direction and it will define dx=dy and Ny 
 parameters.Nx = parameters.GridSize;
-parameters.fluid = 'air';
 
 %for piv data as velocity field
 %only used in read_in_velocity_data_p1.m 
@@ -48,15 +47,14 @@ parameters.usegmres = 0; %0 if LU decomposition and 1 if gmres iterative solver
 
 if strcmp(parameters.fluid,'air')
 	%initializing the bulk surfactants
-	%parameters.initc = 'half_exp';
-    parameters.initc = 'exp_right_small';
+	parameters.initc = 'half_exp';
 	%diffusion coefficient (m^2/s)	
 	simulation.D = parameters.D;
 	%print every print_time timesteps 
 	parameters.print_time = 10000;  
 	simulation.print_time = parameters.print_time;
 	%final time (s):                 
-	parameters.t_final_flick = 0.225; %0.1 s -> 200 s 
+	parameters.t_final_flick = 2.5; %0.1 s -> 200 s 
 	simulation.t_final_flick = parameters.t_final_flick;
 	%t_final_factor_flick = 20000;
 
@@ -70,7 +68,7 @@ elseif strcmp(parameters.fluid,'water')
 	parameters.print_time = 10000;  
 	simulation.print_time = parameters.print_time;
 	%final time (s):                 
-	parameters.t_final_flick = 15; %0.1 s -> 200 s 
+	parameters.t_final_flick = 2.5; %0.1 s -> 200 s 
 	simulation.t_final_flick = parameters.t_final_flick;
    %t_final_factor_flick = 20000;
 else 
