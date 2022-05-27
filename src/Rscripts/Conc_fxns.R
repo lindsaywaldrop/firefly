@@ -16,12 +16,13 @@ retrieve.conc <- function(Species, run){
   rownames(conc.data) <- as.character(1:steps.number)
   final.total <- 0
   for (i in 1:steps.number){
-    csum <- sum(sum(cdat[[i]]))
+    #csum <- sum(sum(cdat[[i]]/cmax))
     for (j in 1:hairs.number){
     a <- dat[[paste0("hairs.c.", i)]][[j]][[1]]
     if (length(a) == 0) { 
       conc.data[i, j] <- 0 
-      } else {conc.data[i, j] <- sum(a)/csum/cmax}
+    } else {
+      conc.data[i, j] <- sum(a)/cmax}
     }
   }
   conc.df <- as.data.frame(conc.data)
@@ -61,7 +62,7 @@ plot.concvtime <- function(df){
   return(p)
 }
 
-plot.concmap <- function(Species, run, step.number){
+plot.concmap <- function(Species, run, step.number, float=FALSE){
   require(R.matlab)
   require(tidyr)
   require(ggplot2)
@@ -70,14 +71,23 @@ plot.concmap <- function(Species, run, step.number){
   dots <- read.table(paste0("./data/vertex-files/",Species,"/",Species,"_",run,".vertex"), skip = 1)
   cdat <- readMat(paste0("./results/odorcapture/",Species,"/c_",sprintf("%04i",run),".mat"))
   cdat.origin <- as.data.frame(cdat[[step.number]])
-  cmax <- max(cdat$c.1)
+  cdat.origin[cdat.origin<0] <-0
+  if(float){
+    cmax <- max(cdat.origin)
+    cmin <- 0
+  } else {
+    cmax <- max(cdat$c.1)
+    cmin <- 0
+  }
   colnames(cdat.origin) <- init.dat$y
   cdat.origin$x <- init.dat$x
   cdat.origin.long <- pivot_longer(as.data.frame(cdat.origin), cols=-"x", names_prefix = "V", names_to="y")
   cdat.origin.long$y <- as.numeric(cdat.origin.long$y)
   p <- ggplot(cdat.origin.long, aes(x, y, fill = value)) + geom_tile() +
-        geom_point(data = dots, mapping = aes(x = V1, y = V2), shape = ".", color = "white", fill = NA) +
-        scale_fill_viridis(option = "A", name="Conc") + theme_minimal() 
+        geom_point(data = dots, mapping = aes(x = V1, y = V2), 
+                   shape = ".", color = "white", fill = NA) +
+        scale_fill_viridis(option = "A", name="Conc", limits=c(cmin,cmax)) + 
+        theme_minimal() 
   return(p)
 }
 

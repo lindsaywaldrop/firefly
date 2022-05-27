@@ -57,7 +57,7 @@ elseif strcmp(parameters.initc,'half_exp') %THIS ONE
     %if parameters.far_right_hair <= 0.005990
     %	exp_center = 0.005990+width/2; %far_right_hair + dist_frh + width/2; 
     %else
-	exp_center = far_right+width*2 %far_right_hair + dist_frh + width/2; 
+	exp_center = far_right+width/2 %far_right_hair + dist_frh + width/2; 
 	%end
     c_Linf = 7; 
     c_max_constant = 0.1; 
