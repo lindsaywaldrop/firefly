@@ -1,7 +1,7 @@
 function [domainlimits] = set_domain_limits(paths,parameters, run_id)
 
 shift1 = 0.075*parameters.L;
-shift2 = 0.005*parameters.L;
+shift2 = 0.02*parameters.L;
 runid = str2double(run_id);
 hair_vertices = dlmread(strcat(paths.pathbase_data,'vertex-files/',parameters.Species,...
         '/',parameters.Species,'_', num2str(runid),'.vertex'),' ');

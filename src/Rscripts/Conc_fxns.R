@@ -1,13 +1,33 @@
 #### Required functions for running analysis on concentration data ####
 
+load.specieslist <- function(){
+  if(file.exists("../data/parameters/Specimen-list.csv")){
+    specimen.list <- read.csv("../data/parameters/Specimen-list.csv") 
+  } else {
+    specimen.list <- read.csv("./data/parameters/Specimen-list.csv") 
+  }
+  drop.these <- which(specimen.list$Measured != "yes")
+  specimen.list <- specimen.list[-drop.these,]
+  specimen.list$Species <- sub(" ", "_", specimen.list$Species)
+  specimen.list$Species <- sub("[.]","",specimen.list$Species)
+  return(specimen.list)
+}
+
 magnitude<-function(u,v) sqrt(u^2 + v^2)
 
-retrieve.conc <- function(Species, run){
+retrieve.conc <- function(Species, set.name, run){
   require(R.matlab)
   print.interval <- 10000
-  init.dat <- readMat(paste0("./results/odorcapture/",Species,"/initdata_",sprintf("%04i",run),".mat"))
-  dat <- readMat(paste0("./results/odorcapture/",Species,"/hairs_c_",sprintf("%04i",run),".mat"))
-  cdat <- readMat(paste0("./results/odorcapture/",Species,"/c_",sprintf("%04i",run),".mat"))
+  if(file.exists(paste0("./results/odorcapture/",set.name,"/",Species,
+                        "/initdata_",sprintf("%04i",run),".mat"))){
+    init.dat <- readMat(paste0("./results/odorcapture/",set.name,"/",Species,"/initdata_",sprintf("%04i",run),".mat"))
+    dat <- readMat(paste0("./results/odorcapture/",set.name,"/",Species,"/hairs_c_",sprintf("%04i",run),".mat"))
+    cdat <- readMat(paste0("./results/odorcapture/",set.name,"/",Species,"/c_",sprintf("%04i",run),".mat"))
+  } else {
+    init.dat <- readMat(paste0("../results/odorcapture/",set.name,"/",Species,"/initdata_",sprintf("%04i",run),".mat"))
+    dat <- readMat(paste0("../results/odorcapture/",set.name,"/",Species,"/hairs_c_",sprintf("%04i",run),".mat"))
+    cdat <- readMat(paste0("../results/odorcapture/",set.name,"/",Species,"/c_",sprintf("%04i",run),".mat"))
+  }
   cmax <- max(cdat$c.1)
   steps.number <- length(dat) 
   hairs.number <- length(dat[[1]])
@@ -31,10 +51,12 @@ retrieve.conc <- function(Species, run){
   return(conc.df)
 }
 
-diditrun <- function(Species, run){
-  if(file.exists(paste0("./results/odorcapture/",Species,"/initdata_",sprintf("%04i",run),".mat"))){
+diditrun <- function(Species, set.name, run){
+  if(file.exists(paste0("./results/odorcapture/",set.name,"/",Species,"/initdata_",sprintf("%04i",run),".mat"))){
     a <- TRUE
-  } else {
+  } else if(file.exists(paste0("../results/odorcapture/",set.name,"/",Species,"/initdata_",sprintf("%04i",run),".mat"))) {
+    a <- TRUE
+  }else {
     a <- FALSE
   }
   return(a)
@@ -42,12 +64,11 @@ diditrun <- function(Species, run){
 
 find.final.sum <- function(df, rmna = TRUE){
   df<-subset(df, select= -time)
-  if(ncol(df)==1){
-    a <- df[nrow(df),]
-  } else{
-    a <- rowSums(df[nrow(df),], na.rm = rmna)
-  }
-  return(a)
+  df <-df[nrow(df),]
+  a <- ifelse(df < 1e-4, 0, df)
+  a <- as.data.frame(a)
+  b <- sum(a, na.rm = rmna)
+  return(b)
 }
 
 plot.concvtime <- function(df){
@@ -62,14 +83,23 @@ plot.concvtime <- function(df){
   return(p)
 }
 
-plot.concmap <- function(Species, run, step.number, float=FALSE){
+plot.concmap <- function(Species, set.name, run, step.number, float=FALSE){
   require(R.matlab)
   require(tidyr)
   require(ggplot2)
   require(viridis)
-  init.dat <- readMat(paste0("./results/odorcapture/",Species,"/initdata_",sprintf("%04i",run),".mat"))
-  dots <- read.table(paste0("./data/vertex-files/",Species,"/",Species,"_",run,".vertex"), skip = 1)
-  cdat <- readMat(paste0("./results/odorcapture/",Species,"/c_",sprintf("%04i",run),".mat"))
+  if(file.exists(paste0("./results/odorcapture/",set.name,"/",Species,"/initdata_",sprintf("%04i",run),".mat"))){
+    init.dat <- readMat(paste0("./results/odorcapture/",set.name,"/",Species,"/initdata_",sprintf("%04i",run),".mat"))
+    dots <- read.table(paste0("./data/vertex-files/",Species,"/",Species,"_",run,".vertex"), skip = 1)
+    cdat <- readMat(paste0("./results/odorcapture/",set.name,"/",Species,"/c_",sprintf("%04i",run),".mat"))
+  } else if (file.exists(file.exists(paste0("../results/odorcapture/", set.name,"/", 
+                                          Species,"/initdata_",sprintf("%04i",run),".mat")))){
+    init.dat <- readMat(paste0("../results/odorcapture/",set.name,"/",Species,"/initdata_",sprintf("%04i",run),".mat"))
+    dots <- read.table(paste0("../data/vertex-files/",Species,"/",Species,"_",run,".vertex"), skip = 1)
+    cdat <- readMat(paste0("../results/odorcapture/",set.name,"/",Species,"/c_",sprintf("%04i",run),".mat"))
+  } else {
+    stop("Correct files not found.")
+  }
   cdat.origin <- as.data.frame(cdat[[step.number]])
   cdat.origin[cdat.origin<0] <-0
   if(float){
@@ -91,12 +121,12 @@ plot.concmap <- function(Species, run, step.number, float=FALSE){
   return(p)
 }
 
-plot.velmap <- function(Species, run, component = "Um"){
+plot.velmap <- function(Species, set.name, run, component = "Um"){
   require(R.matlab)
   require(ggplot2)
   require(viridis)
-  init.dat <- readMat(paste0("./results/odorcapture/",Species,"/initdata_",sprintf("%04i",run),".mat"))
-  vel.dat <- readMat(paste0("./results/odorcapture/",Species,"/velocity_",sprintf("%04i",run),".mat"))
+  init.dat <- readMat(paste0("./results/odorcapture/",set.name,"/",Species,"/initdata_",sprintf("%04i",run),".mat"))
+  vel.dat <- readMat(paste0("./results/odorcapture/",set.name,"/",Species,"/velocity_",sprintf("%04i",run),".mat"))
   dots <- read.table(paste0("./data/vertex-files/",Species,"/",Species,"_",run,".vertex"), skip = 1)
   uvel.origin <- as.data.frame(vel.dat$u.flick)
   vvel.origin <- as.data.frame(vel.dat$v.flick)
