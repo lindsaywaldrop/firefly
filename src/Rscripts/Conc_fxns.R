@@ -95,6 +95,9 @@ capture.analysis <- function(set.name, no.runs){
   }
   final.conc2 <- as.data.frame(final.conc)
   final.conc2$run <- seq(1, no.runs)
+  numofhairs <- as.data.frame(numofhairs)
+  num.hairs <- pivot_longer(numofhairs, cols=everything(), names_to = "Species", 
+                            values_to = "NumofHairs")
   finalconc.long <- pivot_longer(final.conc2, cols = -"run", names_to = "Species", 
                                  values_to = "Concentration")
   finalconc.long$Signal <- rep(NA, nrow(finalconc.long))
@@ -106,7 +109,8 @@ capture.analysis <- function(set.name, no.runs){
     }
   }
   finalconc.long$Signal <- factor(finalconc.long$Signal)
-  finalconc.long <- finalconc.long[ , c(1, 2, 4, 3)]
+  finalconc.long$NumofHairs <- num.hairs$NumofHairs
+  finalconc.long <- finalconc.long[ , c(1, 2, 4, 5, 3)]
   write.csv(finalconc.long, paste0("../results/r-csv-files/finalconc-long_", 
                                    set.name, "_", no.runs, ".csv"), 
             row.names = FALSE)
@@ -130,6 +134,30 @@ capture.analysis <- function(set.name, no.runs){
                                  "_", no.runs, ".csv"), 
             row.names = FALSE)
   return(NULL)
+}
+
+make.sums <- function(df){
+  df$Species <- factor(df$Species)
+  x.sums <- rep(NA, nlevels(df$Species))
+  x.signals <- rep(NA, nlevels(df$Species))
+  for (i in 1:nlevels(df$Species)){
+    x <- subset(df, df$Species==levels(df$Species)[i])
+    x.sums[i] <- sum(x$Concentration)
+    x.signals[i] <- x$Signal[1]
+  }
+  return(data.frame("Species"= levels(df$Species),
+                    "Signal" = x.signals,
+                    "Concentration" = x.sums))
+}
+
+prep.phyloanova <- function(df, Species.list){
+  signals <- df$Signal
+  signals[signals=="both"] <- "chemical"
+  signals <- factor(signals)
+  names(signals) <- Species.list
+  sig.sums <- df$Concentration
+  names(sig.sums) <- Species.list
+  return(list(signals, sig.sums))
 }
 
 #### Plotting Functions ####
