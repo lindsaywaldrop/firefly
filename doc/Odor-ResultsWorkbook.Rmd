@@ -1,0 +1,388 @@
+---
+title: "Firefly Odor-Capture Results Workbook"
+author: "Lindsay Waldrop"
+date: "5/19/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(R.matlab)
+library(pracma)
+library(tidyr)
+library(ggplot2)
+library(viridis)
+library(phytools)
+
+
+source("../src/Rscripts/Conc_fxns.R")
+
+run.analysis <- FALSE
+specimen.list <- load.specieslist()
+
+```
+
+### Concentration capture results
+
+
+```{r, echo=FALSE, include=FALSE}
+#plot.concvtime(co.B)
+#plot.velmap("Bicellonycha_sp", 5, "Um")
+
+
+if(run.analysis){
+  capture.analysis("water1en15", 20)
+  capture.analysis("air6en6", 20)
+  capture.analysis("water1en11", 20)
+  capture.analysis("air1en11", 20)
+} 
+
+```
+
+```{r warning=FALSE, message=FALSE, echo=FALSE, include=FALSE}
+finalconc1.long <- read.csv("../results/r-csv-files/finalconc-long_water1en15_20.csv")
+finalconc1.long$Species <- sub("_", " ", finalconc1.long$Species)
+finalconc1.long$Signal[finalconc1.long$Signal=="both"] <- "chemical"
+
+finalconc2.long <- read.csv("../results/r-csv-files/finalconc-long_water1en11_20.csv")
+finalconc2.long$Species <- sub("_", " ", finalconc2.long$Species)
+finalconc2.long$Signal[finalconc2.long$Signal=="both"] <- "chemical"
+
+finalconc3.long <- read.csv("../results/r-csv-files/finalconc-long_air6en6_20.csv")
+finalconc3.long$Species <- sub("_", " ", finalconc3.long$Species)
+finalconc3.long$Signal[finalconc3.long$Signal=="both"] <- "chemical"
+
+finalconc4.long <- read.csv("../results/r-csv-files/finalconc-long_air1en11_20.csv")
+finalconc4.long$Species <- sub("_", " ", finalconc4.long$Species)
+finalconc4.long$Signal[finalconc4.long$Signal=="both"] <- "chemical"
+
+perhair1.long <- read.csv("../results/r-csv-files/perhair-long_water1en15_20.csv")
+perhair1.long$Species <- sub("_", " ", perhair1.long$Species)
+perhair1.long$Concentration[is.na(perhair1.long$Concentration)] < -0.0
+perhair1.long$Signal[perhair1.long$Signal=="both"] <- "chemical"
+
+perhair2.long <- read.csv("../results/r-csv-files/perhair-long_water1en11_20.csv")
+perhair2.long$Species <- sub("_", " ", perhair2.long$Species)
+perhair2.long$Concentration[is.na(perhair2.long$Concentration)] <- 0.0
+perhair2.long$Signal[perhair2.long$Signal=="both"] <- "chemical"
+
+perhair3.long <- read.csv("../results/r-csv-files/perhair-long_air6en6_20.csv")
+perhair3.long$Species <- sub("_", " ", perhair3.long$Species)
+perhair3.long$Concentration[is.na(perhair3.long$Concentration)] <- 0.0
+perhair3.long$Signal[perhair3.long$Signal=="both"] <- "chemical"
+
+perhair4.long <- read.csv("../results/r-csv-files/perhair-long_air1en11_20.csv")
+perhair4.long$Species <- sub("_", " ", perhair4.long$Species)
+perhair4.long$Concentration[is.na(perhair4.long$Concentration)] <- 0.0
+perhair4.long$Signal[perhair4.long$Signal=="both"] <- "chemical"
+```
+
+How many olfactory hairs per trial?
+```{r}
+ggplot(finalconc1.long, aes(Species, NumofHairs, fill = Signal)) + 
+  geom_boxplot(alpha = 0.5) +
+  geom_jitter(pch = 23, size = 1, alpha = 0.8, width = 0.25) +
+  scale_fill_manual(values = c("red","blue")) + 
+  #scale_fill_viridis(discrete = TRUE) +
+  ylab("Number of olfactory hairs per trial") + xlab("") +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) 
+ggsave("hairs-per-trail-species.pdf", width=8, height=5)
+ggplot(finalconc1.long, aes(Signal, NumofHairs, fill = Signal)) +
+  geom_boxplot(alpha=0.5) +
+  geom_jitter(pch=23, size = 2, width = 0.25, alpha=0.8) +
+  scale_fill_manual(values = c("red","blue")) + 
+  #scale_fill_viridis(discrete = TRUE)+
+  ylab("Number of olfactory hairs per trial") + xlab("") +
+  theme_minimal() + theme(legend.position = "none")
+ggsave("hairs-per-trail-type.pdf", width=4, height=5)
+```
+
+How many mechanosensory hairs per trial? 
+```{r}
+
+
+```
+Concentration captured per trial:
+```{r}
+
+ggplot(finalconc1.long, aes(Species, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha=0.5) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  geom_jitter(alpha = 0.8, shape = 23, color = "black", width=0.25) + 
+  #scale_fill_viridis(discrete = TRUE) + 
+  scale_fill_manual(values=c("red","blue")) +
+  xlab("") + ylab("Concentration captured per trial") +
+  #ggtitle("Air with D = 6e-6") +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) 
+ggsave("waterD1en15-species.pdf", width=8, height=5)
+
+ggplot(finalconc2.long, aes(Species, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha=0.5) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  geom_jitter(alpha = 0.8, shape = 23, color = "black", width=0.25) + 
+  #scale_fill_viridis(discrete = TRUE) + 
+  scale_fill_manual(values=c("red","blue")) +
+  xlab("") + ylab("Concentration captured per trial") +
+  #ggtitle("Air with D = 6e-6") +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) 
+ggsave("waterD1en11-species.pdf", width=8, height=5)
+
+ggplot(finalconc3.long, aes(Species, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha=0.5) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  geom_jitter(alpha = 0.8, shape = 23, color = "black", width=0.25) + 
+  #scale_fill_viridis(discrete = TRUE) + 
+  scale_fill_manual(values=c("red","blue")) +
+  xlab("") + ylab("Concentration captured per trial") +
+  ggtitle("Air with D = 6e-6") +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) 
+ggsave("airD6en6-species.pdf",width=8, height=5)
+
+ggplot(finalconc3.long, aes(Signal, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha=0.5) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  geom_jitter(alpha = 0.8, shape = 23, color = "black", width=0.25) + 
+  #scale_fill_viridis(discrete = TRUE) + 
+  scale_fill_manual(values=c("red","blue")) +
+  xlab("") + ylab("Concentration captured per trial") +
+  #ggtitle("Air with D = 6e-6") +
+  theme_minimal() +theme(legend.position = "none")
+ggsave("airD6en6-type.pdf", width=4, height=5)
+
+ggplot(finalconc4.long, aes(Species, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha = 0.5) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  geom_jitter(alpha = 0.8, shape = 23, color = "black", width = 0.25) + 
+  #scale_fill_viridis(discrete = TRUE) + 
+  scale_fill_manual(values=c("red","blue")) +
+  xlab("") + ylab("Concentration captured per trial") +
+  #ggtitle("Air with D = 1e-11") +
+  theme_minimal() + theme(axis.text.x = element_text(angle = 65, hjust = 1)) 
+ggsave("airD1en11-species.pdf",width=8, height=5)
+
+```  
+
+```{r}
+ggplot(perhair1.long, aes(Species, Concentration, fill = Signal)) + 
+  geom_boxplot() + 
+  geom_jitter(alpha = 0.3, shape = 21, color = "black", width=0.25) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  scale_fill_viridis(discrete = TRUE) + 
+  #ylim(0,0.01) +
+  ylab("Concentration captured per hair") + xlab(" ") +
+  ggtitle("Water with D = 1e-11") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+
+ggplot(perhair2.long, aes(Species, Concentration, fill = Signal)) + 
+  geom_boxplot() + 
+  geom_jitter(alpha = 0.3, shape = 21, color = "black", width=0.25) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  scale_fill_viridis(discrete = TRUE) + 
+  #ylim(0,0.01) +
+  ylab("Concentration captured per hair") + xlab(" ") +
+  ggtitle("Water with D = 1e-11") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+
+ggplot(perhair3.long, aes(Species, Concentration, fill = Signal)) + 
+  geom_boxplot() + 
+  geom_jitter(alpha = 0.3, shape = 21, color = "black", width=0.25) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  scale_fill_viridis(discrete = TRUE) + 
+  #ylim(0,0.01) +
+  ylab("Concentration captured per hair") + xlab(" ") +
+  ggtitle("Air with D = 6e-6") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+
+ggplot(perhair4.long, aes(Species, Concentration, fill = Signal)) + 
+  geom_boxplot() + 
+  geom_jitter(alpha = 0.3, shape = 21, color = "black", width=0.25) + 
+  #stat_summary(shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  scale_fill_viridis(discrete = TRUE) + 
+  #ylim(0,0.01) +
+  ylab("Concentration captured per hair") + xlab(" ") +
+  ggtitle("Air with D = 1e-11") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+```
+
+Plotting total captured: 
+```{r}
+ggplot(finalconc1.long, aes(Species, Concentration, fill = Signal)) + 
+  stat_summary(fun = "sum", shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  scale_fill_viridis(discrete = TRUE) + 
+  #ylim(0,0.01) +
+  ylab("Total concentration captured") + xlab(" ") +
+  ggtitle("Water with D = 1e-15") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+
+ggplot(finalconc2.long, aes(Species, Concentration, fill = Signal)) + 
+  stat_summary(fun = "sum", shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  scale_fill_viridis(discrete = TRUE) + 
+  #ylim(0,0.01) +
+  ylab("Total concentration captured") + xlab(" ") +
+  ggtitle("Water with D = 1e-11") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+
+ggplot(finalconc3.long, aes(Species, Concentration, fill = Signal)) + 
+  stat_summary(fun = "sum", shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  scale_fill_viridis(discrete = TRUE) + 
+  #ylim(0,0.01) +
+  ylab("Total concentration captured") + xlab(" ") +
+  ggtitle("Air with D = 6e-6") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+
+
+ggplot(finalconc4.long, aes(Species, Concentration, fill = Signal)) + 
+  stat_summary(fun = "sum", shape = 21, color = "black") + 
+  #geom_point(alpha = 0.3, shape = 21, color = "black") + 
+  scale_fill_viridis(discrete = TRUE) + 
+  #ylim(0,0.01) +
+  ylab("Total concentration captured") + xlab(" ") +
+  ggtitle("Air with D = 1e-11") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 65, hjust = 1))
+```
+
+
+Plotting by signal:
+```{r}
+finalconc1.sum <- make.sums(finalconc1.long)
+finalconc2.sum <- make.sums(finalconc2.long)
+finalconc3.sum <- make.sums(finalconc3.long)
+finalconc4.sum <- make.sums(finalconc4.long)
+
+ggplot(finalconc1.sum, aes(Signal, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha = 0.5) +
+  geom_jitter(aes(fill = Signal), alpha = 0.8, shape = 23, size = 3, width=0.25) + 
+  #scale_fill_viridis(discrete = TRUE) + 
+  scale_fill_manual(values=c("red","blue")) +
+  ylab("Total concentration captured") + xlab("") +
+  #ggtitle("Air with D = 6e-6") +
+  #scale_y_continuous(trans="log10") + 
+  theme_minimal() + theme(legend.position = "none")
+ggsave("waterD1en15-type.pdf", width=4, height=5)
+
+ggplot(finalconc2.sum, aes(Signal, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha = 0.5) +
+  geom_jitter(aes(fill = Signal), alpha = 0.8, shape = 23, size = 3, width=0.25) + 
+  #scale_fill_viridis(discrete = TRUE) + 
+  scale_fill_manual(values=c("red","blue")) +
+  ylab("Total concentration captured") + xlab("") +
+  #ggtitle("Air with D = 6e-6") +
+  #scale_y_continuous(trans="log10") + 
+  theme_minimal() + theme(legend.position = "none")
+ggsave("waterD1en11-type.pdf", width=4, height=5)
+
+ggplot(finalconc3.sum, aes(Signal, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha = 0.5) +
+  geom_jitter(aes(fill = Signal), alpha = 0.8, shape = 23, size = 3, width=0.25) + 
+  #scale_fill_viridis(discrete = TRUE) + 
+  scale_fill_manual(values=c("red","blue")) +
+  ylab("Total concentration captured") + xlab("") +
+  #ggtitle("Air with D = 6e-6") +
+  #scale_y_continuous(trans="log10") + 
+  theme_minimal() + theme(legend.position = "none")
+ggsave("airD6en6-type.pdf", width=4, height=5)
+
+ggplot(finalconc4.sum, aes(Signal, Concentration, fill = Signal)) + 
+  geom_boxplot(alpha = 0.5) +
+  geom_jitter(aes(fill = Signal), alpha = 0.8, shape = 23, size = 3, width=0.25) + 
+  #scale_fill_viridis(discrete = TRUE) +
+  scale_fill_manual(values=c("red","blue")) + 
+  ylab("Total concentration captured") + xlab("") +
+  #ggtitle("Air with D = 1e-11") +
+  #scale_y_continuous(trans="log10") + 
+  theme_minimal() + theme(legend.position = "none") 
+ggsave("airD1en11-type.pdf", width=4, height=5)
+
+```
+
+Stats: 
+
+```{r}
+modelsum1 <- lm(Concentration~Signal, data=finalconc1.sum)
+anova(modelsum1)
+modelsum2 <- lm(Concentration~Signal, data=finalconc2.sum)
+anova(modelsum2)
+modelsum3 <- lm(Concentration~Signal, data=finalconc3.sum)
+anova(modelsum3)
+modelsum4 <- lm(Concentration~Signal, data=finalconc4.sum)
+anova(modelsum4)
+```
+Phylogenetically corrected ANOVA: 
+```{r}
+bug.tree <- read.tree("../data/parameters/Treefor15species-pyloANOVA.tree")
+Species.list <- sub(" ", "_", finalconc1.sum$Species)
+Species.list <- sub("_sp", "_sp.", Species.list)
+
+test1 <- prep.phyloanova(finalconc1.sum, Species.list)
+phylANOVA(bug.tree, test1[[1]], test1[[2]])
+test2 <- prep.phyloanova(finalconc2.sum, Species.list)
+phylANOVA(bug.tree, test2[[1]], test2[[2]])
+test3 <- prep.phyloanova(finalconc3.sum, Species.list)
+phylANOVA(bug.tree, test3[[1]], test3[[2]])
+test4 <- prep.phyloanova(finalconc4.sum, Species.list)
+phylANOVA(bug.tree, test4[[1]], test4[[2]])
+```
+
+Test number of hairs: 
+```{r}
+finalconc1.long$Species <- factor(finalconc1.long$Species)
+x.sums <- rep(NA, nlevels(finalconc1.long$Species))
+x.signals <- rep(NA, nlevels(finalconc1.long$Species))
+for (i in 1:nlevels(finalconc1.long$Species)){
+  x <- subset(finalconc1.long,
+              finalconc1.long$Species == levels(finalconc1.long$Species)[i])
+  x.sums[i] <- sum(x$NumofHairs)
+  x.signals[i] <- x$Signal[1]
+}
+finalhairs.sums <- data.frame("Species"= levels(finalconc1.long$Species),
+                    "Signal" = x.signals,
+                    "NumofHairs" = x.sums)
+
+signals <- finalhairs.sums$Signal
+signals[signals=="both"] <- "chemical"
+signals <- factor(signals)
+names(signals) <- Species.list
+sig.sums <- finalhairs.sums$NumofHairs
+names(sig.sums) <- Species.list
+
+phylANOVA(bug.tree, signals, sig.sums)
+anova(lm(NumofHairs~Signal, data=finalhairs.sums))
+```
+
+
+
+Plotting density of capture:
+```{r}
+
+ggplot(finalconc1.long, aes(Concentration, fill=Signal)) + 
+  geom_density(n = 20, alpha=0.5) +
+  scale_fill_viridis(discrete = T) +
+  theme_minimal()
+
+ggplot(finalconc2.long, aes(Concentration, fill=Signal)) + 
+  geom_density(n = 20, alpha=0.5) +
+  scale_fill_viridis(discrete = T) +
+  theme_minimal()
+
+ggplot(finalconc3.long, aes(Concentration, fill=Signal)) + 
+  geom_density(n = 20, alpha=0.5) +
+  scale_fill_viridis(discrete = T) +
+  theme_minimal()
+
+ggplot(finalconc4.long, aes(Concentration, fill=Signal)) + 
+  geom_density(n = 20, alpha=0.5) +
+  scale_fill_viridis(discrete = T) +
+  theme_minimal()
+```

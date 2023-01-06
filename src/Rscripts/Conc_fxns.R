@@ -164,15 +164,19 @@ prep.phyloanova <- function(df, Species.list){
 
 magnitude<-function(u, v) sqrt(u^2 + v^2)
 
-plot.concvtime <- function(df){
+plot.concvtime <- function(df, yrange = NULL){
   require(tidyr)
   require(ggplot2)
   require(viridis)
+  
   conc.df.longer <- pivot_longer(df, cols = -c("time"), names_to = "hair", 
                                  values_to = "Concentration")
+  if(is.null(yrange)) yrange <- range(conc.df.longer$Concentration)
   p <- ggplot(conc.df.longer, aes(time, Concentration, color = hair)) + 
         geom_point() + geom_line() +
         scale_color_viridis(discrete = TRUE) +
+        ylim(yrange) +
+        xlab("time (s)") + 
         theme_minimal()
   return(p)
 }
@@ -206,20 +210,23 @@ plot.concmap <- function(Species, set.name, run, step.number, float = FALSE){
   cdat.origin[cdat.origin < 0] <- 0
   if(float){
     cmax <- max(cdat.origin)
-    cmin <- 0
+    cmin <- 1e-20
   } else {
     cmax <- max(cdat$c.1)
-    cmin <- 0
+    cmin <- 1e-20
   }
   colnames(cdat.origin) <- init.dat$y
   cdat.origin$x <- init.dat$x
   cdat.origin.long <- pivot_longer(as.data.frame(cdat.origin), cols = -"x", 
                                    names_prefix = "V", names_to = "y")
   cdat.origin.long$y <- as.numeric(cdat.origin.long$y)
-  p <- ggplot(cdat.origin.long, aes(x, y, fill = value)) + geom_tile() +
+  cdat.origin.long$value[cdat.origin.long$value<1e-16] <- 1e-16
+  p <- ggplot(cdat.origin.long, aes(x, y, fill = value)) + geom_raster() +
         geom_point(data = dots, mapping = aes(x = V1, y = V2), 
-                   shape = ".", color = "white", fill = NA) +
-        scale_fill_viridis(option = "A", name = "Conc", limits = c(cmin, cmax)) + 
+                   shape = 19, color = "white", fill = NA, size=1) +
+        scale_fill_viridis(option = "A", name = "Conc", limits = c(cmin, cmax), 
+                           trans="sqrt") + 
+        ylab("y (m)") + xlab ("x (m)") + 
         theme_minimal() 
   return(p)
 }
